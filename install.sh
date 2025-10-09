@@ -89,10 +89,10 @@ while read -r line; do
     echo "$line is not found"
     case "$line" in
     "tabiew")
-      update_cargo_tabiew
+      install_cargo_tabiew
       ;;
     "rustowl")
-      update_cargo_rustowl
+      install_cargo_rustowl
       ;;
     *)
       pueue add -- "cargo install $line"
