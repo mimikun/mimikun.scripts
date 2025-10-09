@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+SKIP_ARCH_PKGS_INSTALL=false
+
 PACKAGE_LIST_AUR="${1:-$HOME/.mimikun-pkglists/linux_arch_aur_packages.txt}"
 PACKAGE_LIST_OFFICIAL="${1:-$HOME/.mimikun-pkglists/linux_arch_official_packages.txt}"
 PACKAGE_LIST_UV="${1:-$HOME/.mimikun-pkglists/linux_uv_tools.txt}"
@@ -25,41 +27,43 @@ if ! command -v paru &>/dev/null; then
   exit 1
 fi
 
-echo "install arch aur packages"
-# AUR
-while IFS= read -r package || [[ -n "$package" ]]; do
-  # Skip empty lines and comments
-  [[ -z "$package" || "$package" =~ ^[[:space:]]*# ]] && continue
+if $SKIP_ARCH_PKGS_INSTALL; then
+  echo "install arch aur packages"
+  # AUR
+  while IFS= read -r package || [[ -n "$package" ]]; do
+    # Skip empty lines and comments
+    [[ -z "$package" || "$package" =~ ^[[:space:]]*# ]] && continue
 
-  # Trim whitespace
-  package=$(echo "$package" | xargs)
+    # Trim whitespace
+    package=$(echo "$package" | xargs)
 
-  echo "Installing: $package"
-  if paru -S --noconfirm "$package"; then
-    echo "✓ Successfully installed: $package"
-  else
-    echo "✗ Failed to install: $package" >&2
-  fi
-  echo
-done <"$PACKAGE_LIST_AUR"
+    echo "Installing: $package"
+    if paru -S --noconfirm "$package"; then
+      echo "✓ Successfully installed: $package"
+    else
+      echo "✗ Failed to install: $package" >&2
+    fi
+    echo
+  done <"$PACKAGE_LIST_AUR"
 
-echo "install arch official packages"
-# OFFICIAL
-while IFS= read -r package || [[ -n "$package" ]]; do
-  # Skip empty lines and comments
-  [[ -z "$package" || "$package" =~ ^[[:space:]]*# ]] && continue
+  echo "install arch official packages"
+  # OFFICIAL
+  while IFS= read -r package || [[ -n "$package" ]]; do
+    # Skip empty lines and comments
+    [[ -z "$package" || "$package" =~ ^[[:space:]]*# ]] && continue
 
-  # Trim whitespace
-  package=$(echo "$package" | xargs)
+    # Trim whitespace
+    package=$(echo "$package" | xargs)
 
-  echo "Installing: $package"
-  if paru -S --noconfirm "$package"; then
-    echo "✓ Successfully installed: $package"
-  else
-    echo "✗ Failed to install: $package" >&2
-  fi
-  echo
-done <"$PACKAGE_LIST_OFFICIAL"
+    echo "Installing: $package"
+    if paru -S --noconfirm "$package"; then
+      echo "✓ Successfully installed: $package"
+    else
+      echo "✗ Failed to install: $package" >&2
+    fi
+    echo
+  done <"$PACKAGE_LIST_OFFICIAL"
+fi
 
 ################################################################################################################
 
