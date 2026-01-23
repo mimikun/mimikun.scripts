@@ -2,7 +2,7 @@
 
 # magic
 if ! test "$(
-  sudo uname >>/dev/null
+  sudo -v >>/dev/null
   echo $?
 )" -eq 0; then
   exit 1
@@ -17,6 +17,7 @@ pueue add -- "deno upgrade"
 echo "bun upgrade"
 pueue add -- "bun upgrade"
 
+# TODO: it
 echo "mise upgrade (has human rights)"
 mise_task_id=$(pueue add -p -- "mise upgrade")
 pvim_task_id=$(pueue add -p --after "$mise_task_id" -- "update_mise paleovim-master --use-pueue")
