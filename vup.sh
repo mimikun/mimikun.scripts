@@ -59,7 +59,7 @@ pueue add --after "$bob_task_id" -- "bob install head"
 
 echo "update fish plugins"
 pez upgrade
-fish -c 'fisher update'
+#fish -c 'fisher update'
 
 echo "update_cargo_packages"
 cargo_outdated_pkgs=$(cargo install-update -l | grep "Yes" | cut -d " " -f 1)
@@ -68,9 +68,6 @@ echo "$cargo_outdated_pkgs"
 for i in $cargo_outdated_pkgs; do
   task_id=$(pueue add -p --after "$rust_task_id" -- "cargo install $i")
 done
-
-echo "update_fish_completions"
-update_fish_completions
 
 echo "gup update"
 task_id=$(pueue add -p -- "gup update")
@@ -92,7 +89,7 @@ echo "cleanup cargo caches"
 pueue add -- "cargo cache -a"
 
 echo "upgrade pixi"
-pueue add -- "pixi self-upgrade"
+#pueue add -- "pixi self-upgrade"
 
 echo "update_docker_compose"
 update_docker_compose
