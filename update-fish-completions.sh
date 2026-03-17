@@ -81,9 +81,11 @@ if command_exist pipx; then
     pueue add -- "register-python-argcomplete --shell fish pipx > '${COMPLETIONS_DIR}'/pipx.fish"
 fi
 
-if command_exist wezterm; then
-    pueue add -- "wezterm shell-completion --shell fish > '${COMPLETIONS_DIR}'/wezterm.fish"
-fi
+for cmd in "wezterm" "moon"; do
+    if command_exist "${cmd}"; then
+        pueue add -- "'${cmd}' shell-completion --shell fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
+    fi
+done
 
 if command_exist rye; then
     pueue add -- "rye self completion -s fish > '${COMPLETIONS_DIR}'/rye.fish"
