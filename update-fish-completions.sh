@@ -39,19 +39,63 @@ update_sharkdp_tool_completions() {
 
 pueue add -- "fish -c 'fish_update_completions'"
 
-for cmd in "poetry" "rustup" "starship" "deno" "mdbook" "ast-grep" "rip" "pez" "doggo"; do
+# Pattern: CMD completions fish
+for cmd in \
+    "ast-grep" \
+    "deno" \
+    "doggo" \
+    "mdbook" \
+    "pez" \
+    "poetry" \
+    "rip" \
+    "rustup" \
+    "starship" \
+    ; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' completions fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
 done
 
-for cmd in "chezmoi" "flyctl" "runme" "bin" "mise" "luarocks" "gopass" "glow" "pnpm" "aqua" "berg" "sunbeam" "gitleaks" "lefthook" "nvs" "sake" "mani" "turm" "pass-cli" "envdiff" "autohand" "acli" "goose" "kiro-cli" "taws" "pgit"; do
+# Pattern: CMD completion fish
+for cmd in \
+    "acli" \
+    "aqua" \
+    "autohand" \
+    "berg" \
+    "bin" \
+    "chezmoi" \
+    "envdiff" \
+    "flyctl" \
+    "gitleaks" \
+    "glow" \
+    "goose" \
+    "gopass" \
+    "kiro-cli" \
+    "lefthook" \
+    "luarocks" \
+    "mani" \
+    "mise" \
+    "nvs" \
+    "pass-cli" \
+    "pgit" \
+    "pnpm" \
+    "runme" \
+    "sake" \
+    "sunbeam" \
+    "taws" \
+    "turm" \
+    ; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' completion fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
 done
 
-for cmd in "ccsum" "task" "ov"; do
+# Pattern: CMD --completion fish
+for cmd in \
+    "ccsum" \
+    "ov" \
+    "task" \
+    ; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' --completion fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
@@ -81,7 +125,11 @@ if command_exist pipx; then
     pueue add -- "register-python-argcomplete --shell fish pipx > '${COMPLETIONS_DIR}'/pipx.fish"
 fi
 
-for cmd in "wezterm" "moon"; do
+# Pattern: CMD shell-completion --shell fish
+for cmd in \
+    "moon" \
+    "wezterm" \
+    ; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' shell-completion --shell fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
@@ -202,7 +250,12 @@ if command_exist g; then
     pueue add -- "curl -L https://raw.githubusercontent.com/Equationzhao/g/master/completions/fish/g.fish -o '${COMPLETIONS_DIR}'/g.fish"
 fi
 
-for cmd in "bat" "hyperfine" "pastel"; do
+# Pattern: download from sharkdp GitHub releases
+for cmd in \
+    "bat" \
+    "hyperfine" \
+    "pastel" \
+    ; do
     if command_exist "${cmd}"; then
         update_sharkdp_tool_completions "${cmd}"
     fi
