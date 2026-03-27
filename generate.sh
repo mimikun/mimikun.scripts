@@ -42,4 +42,13 @@ uv tool list |
   sed -e "s/\s.*//g" |
   LC_ALL=C sort >"$HOME/.mimikun-pkglists/linux_uv_tools.txt"
 
+gem list |
+  sed -e "s/ (.*//g" |
+  LC_ALL=C sort >"$HOME/.mimikun-pkglists/linux_rubygem_list.txt"
+
+gh extension list |
+  tail -n +1 |
+  awk '{print $3}' |
+  LC_ALL=C sort >"$HOME/.mimikun-pkglists/gh_extension_list.txt"
+
 gup export
