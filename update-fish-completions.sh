@@ -84,6 +84,7 @@ for cmd in \
     "sunbeam" \
     "taws" \
     "turm" \
+    "hyprmoncfg" \
     ; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' completion fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
