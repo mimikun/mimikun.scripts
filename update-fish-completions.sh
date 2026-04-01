@@ -191,6 +191,10 @@ if command_exist lazyworktree ; then
     pueue add -- "lazyworktree completion fish --code > '${COMPLETIONS_DIR}'/lazyworktree.fish"
 fi
 
+if command_exist jg ; then
+    pueue add -- "jg generate shell fish > '${COMPLETIONS_DIR}'/jg.fish"
+fi
+
 # install via curl
 if command_exist eza; then
     pueue add -- "curl -L https://raw.githubusercontent.com/eza-community/eza/main/completions/fish/eza.fish -o '${COMPLETIONS_DIR}'/eza.fish"
