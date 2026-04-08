@@ -50,6 +50,7 @@ for cmd in \
     "rip" \
     "rustup" \
     "starship" \
+    "deadbranch" \
     ; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' completions fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
@@ -136,6 +137,16 @@ for cmd in \
     fi
 done
 
+# Pattern: CMD --completions fish
+for cmd in \
+    "srgn" \
+    "purple" \
+    ; do
+    if command_exist "${cmd}"; then
+        pueue add -- "'${cmd}' --completions fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
+    fi
+done
+
 if command_exist rye; then
     pueue add -- "rye self completion -s fish > '${COMPLETIONS_DIR}'/rye.fish"
 fi
@@ -174,10 +185,6 @@ fi
 
 if command_exist codex && envvar_exist OPENAI_API_KEY; then
     pueue add -- "codex completion fish> '${COMPLETIONS_DIR}'/codex.fish"
-fi
-
-if command_exist srgn; then
-    pueue add -- "srgn --completions fish> '${COMPLETIONS_DIR}'/srgn.fish"
 fi
 
 if command_exist pixi; then
@@ -265,3 +272,4 @@ for cmd in \
         update_sharkdp_tool_completions "${cmd}"
     fi
 done
+
