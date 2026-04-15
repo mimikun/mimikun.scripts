@@ -51,6 +51,7 @@ for cmd in \
     "rustup" \
     "starship" \
     "deadbranch" \
+    "unifly" \
     ; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' completions fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
@@ -86,6 +87,7 @@ for cmd in \
     "taws" \
     "turm" \
     "hyprmoncfg" \
+    "sharedserver" \
     ; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' completion fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
