@@ -68,10 +68,12 @@ for cmd in \
     "chezmoi" \
     "envdiff" \
     "flyctl" \
+    "fnox" \
     "gitleaks" \
     "glow" \
     "goose" \
     "gopass" \
+    "hk" \
     "kiro-cli" \
     "lefthook" \
     "luarocks" \
@@ -80,6 +82,7 @@ for cmd in \
     "nvs" \
     "pass-cli" \
     "pgit" \
+    "pitchfork" \
     "pnpm" \
     "runme" \
     "sake" \
@@ -88,6 +91,7 @@ for cmd in \
     "turm" \
     "hyprmoncfg" \
     "sharedserver" \
+    "tombi" \
     ; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' completion fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
