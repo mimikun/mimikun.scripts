@@ -118,8 +118,6 @@ for cmd in \
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' shell-completion fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
-fi
-
 done
 
 if command_exist bun; then
