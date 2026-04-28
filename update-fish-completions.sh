@@ -110,12 +110,20 @@ for cmd in \
     fi
 done
 
-if command_exist bun; then
-    pueue add -- "bun completions"
+# Pattern: CMD shell-completion fish
+for cmd in \
+    "pkl" \
+    "yq" \
+    ; do
+    if command_exist "${cmd}"; then
+        pueue add -- "'${cmd}' shell-completion fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
+    fi
 fi
 
-if command_exist yq; then
-    pueue add -- "yq shell-completion fish > '${COMPLETIONS_DIR}'/yq.fish"
+done
+
+if command_exist bun; then
+    pueue add -- "bun completions"
 fi
 
 if command_exist gh; then
