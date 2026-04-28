@@ -62,6 +62,7 @@ done
 for cmd in \
     "acli" \
     "aqua" \
+    "aube" \
     "autohand" \
     "berg" \
     "bin" \
@@ -145,8 +146,9 @@ done
 
 # Pattern: CMD --completions fish
 for cmd in \
-    "srgn" \
     "purple" \
+    "srgn" \
+    "usage" \
     ; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' --completions fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
