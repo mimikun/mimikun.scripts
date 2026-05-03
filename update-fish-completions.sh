@@ -86,6 +86,7 @@ for cmd in \
     "pitchfork" \
     "pnpm" \
     "runme" \
+    "rvpm" \
     "sake" \
     "sunbeam" \
     "taws" \
