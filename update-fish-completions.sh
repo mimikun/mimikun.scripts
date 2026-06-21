@@ -155,6 +155,7 @@ done
 for cmd in \
     "purple" \
     "srgn" \
+    "ttl " \
     "usage" \
     ; do
     if command_exist "${cmd}"; then
