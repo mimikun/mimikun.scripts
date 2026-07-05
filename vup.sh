@@ -61,6 +61,12 @@ echo "update fish plugins"
 pez upgrade
 #fish -c 'fisher update'
 
+# Clean stale cargo-install leftovers in /tmp before kicking off new builds.
+# Only targets cargo-install* dirs untouched for 30+ min, so in-progress
+# builds and other /tmp work dirs are never touched. No sudo required.
+echo "clean stale /tmp/cargo-install leftovers"
+find /tmp -maxdepth 1 -name 'cargo-install*' -type d -mmin +30 -exec rm -rf {} + 2>/dev/null
+
 echo "update_cargo_packages"
 cargo_outdated_pkgs=$(cargo install-update -l | grep "Yes" | cut -d " " -f 1)
 echo "Update these packages:"
