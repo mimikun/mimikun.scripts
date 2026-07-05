@@ -91,6 +91,7 @@ for cmd in \
     "sunbeam" \
     "taws" \
     "turm" \
+    "herdr" \
     "hyprmoncfg" \
     "sharedserver" \
     "tombi" \
