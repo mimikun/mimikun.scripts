@@ -1,0 +1,19 @@
+vup.sh
+  s_7618bafacf8b4e::t_a843406389432a 64-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "d17d8fdae765af8f1bcdad850455ccc241d58464",
+  "prompts": {},
+  "sessions": {
+    "s_7618bafacf8b4e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "379f5c78-ec4d-4621-9a86-c6a90b4a393d",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
