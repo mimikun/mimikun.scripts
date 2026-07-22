@@ -223,70 +223,45 @@ if command_exist jg ; then
 fi
 
 # install via curl
-if command_exist eza; then
-    pueue add -- "curl -L https://raw.githubusercontent.com/eza-community/eza/main/completions/fish/eza.fish -o '${COMPLETIONS_DIR}'/eza.fish"
-fi
+# Pattern: CMD -> completion URL (output file is '${COMPLETIONS_DIR}'/CMD.fish)
+declare -A curl_completions=(
+    ["eza"]="https://raw.githubusercontent.com/eza-community/eza/main/completions/fish/eza.fish"
+    ["tldr"]="https://raw.githubusercontent.com/dbrgn/tealdeer/main/completion/fish_tealdeer"
+    ["zoxide"]="https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/contrib/completions/zoxide.fish"
+    ["alacritty"]="https://raw.githubusercontent.com/alacritty/alacritty/master/extra/completions/alacritty.fish"
+    ["ghq"]="https://raw.githubusercontent.com/x-motemen/ghq/master/misc/fish/ghq.fish"
+    ["foot"]="https://codeberg.org/dnkl/foot/raw/branch/master/completions/fish/foot.fish"
+    ["footclient"]="https://codeberg.org/dnkl/foot/raw/branch/master/completions/fish/footclient.fish"
+    ["nix"]="https://raw.githubusercontent.com/NixOS/nix/master/misc/fish/completion.fish"
+    ["nb"]="https://raw.githubusercontent.com/xwmx/nb/refs/heads/master/etc/nb-completion.fish"
+    ["hoard"]="https://raw.githubusercontent.com/Hyde46/hoard/refs/heads/main/src/shell/hoard.fish"
+    ["qsv"]="https://raw.githubusercontent.com/dathere/qsv/refs/heads/master/contrib/completions/examples/qsv.fish"
+    ["g"]="https://raw.githubusercontent.com/Equationzhao/g/master/completions/fish/g.fish"
+)
+for cmd in "${!curl_completions[@]}"; do
+    if command_exist "${cmd}"; then
+        pueue add -- "curl -L ${curl_completions[$cmd]} -o '${COMPLETIONS_DIR}'/${cmd}.fish"
+    fi
+done
 
-if command_exist tldr; then
-    pueue add -- "curl -L https://raw.githubusercontent.com/dbrgn/tealdeer/main/completion/fish_tealdeer -o '${COMPLETIONS_DIR}'/tldr.fish"
-fi
-
-if command_exist zoxide; then
-    pueue add -- "curl -L https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/contrib/completions/zoxide.fish -o '${COMPLETIONS_DIR}'/zoxide.fish"
-fi
-
+# Special cases: one command check produces multiple completion files
 if command_exist http; then
     pueue add -- "curl -L https://raw.githubusercontent.com/httpie/httpie/master/extras/httpie-completion.fish -o '${COMPLETIONS_DIR}'/http.fish"
     pueue add -- "curl -L https://raw.githubusercontent.com/httpie/httpie/master/extras/httpie-completion.fish -o '${COMPLETIONS_DIR}'/https.fish"
 fi
 
-if command_exist hx | command_exist helix; then
+if command_exist hx || command_exist helix; then
     pueue add -- "curl -L https://raw.githubusercontent.com/helix-editor/helix/master/contrib/completion/hx.fish -o '${COMPLETIONS_DIR}'/hx.fish"
     pueue add -- "curl -L https://raw.githubusercontent.com/helix-editor/helix/master/contrib/completion/hx.fish -o '${COMPLETIONS_DIR}'/helix.fish"
 fi
 
-if command_exist alacritty; then
-    pueue add -- "curl -L https://raw.githubusercontent.com/alacritty/alacritty/master/extra/completions/alacritty.fish -o '${COMPLETIONS_DIR}'/alacritty.fish"
-fi
-
-if command_exist ghq; then
-    pueue add -- "curl -L https://raw.githubusercontent.com/x-motemen/ghq/master/misc/fish/ghq.fish -o '${COMPLETIONS_DIR}'/ghq.fish"
-fi
-
-if command_exist foot; then
-    pueue add -- "curl -L https://codeberg.org/dnkl/foot/raw/branch/master/completions/fish/foot.fish -o '${COMPLETIONS_DIR}'/foot.fish"
-fi
-
-if command_exist footclient; then
-    pueue add -- "curl -L https://codeberg.org/dnkl/foot/raw/branch/master/completions/fish/footclient.fish -o '${COMPLETIONS_DIR}'/footclient.fish"
-fi
-
-if command_exist nix; then
-    pueue add -- "curl -L https://raw.githubusercontent.com/NixOS/nix/master/misc/fish/completion.fish -o '${COMPLETIONS_DIR}'/nix.fish"
-fi
-
-if command_exist nb; then
-    pueue add -- "curl -L https://raw.githubusercontent.com/xwmx/nb/refs/heads/master/etc/nb-completion.fish -o '${COMPLETIONS_DIR}'/nb.fish"
-fi
-
-if command_exist hoard; then
-    pueue add -- "curl -L https://raw.githubusercontent.com/Hyde46/hoard/refs/heads/main/src/shell/hoard.fish -o '${COMPLETIONS_DIR}'/hoard.fish"
-fi
-
-if command_exist qsv; then
-    pueue add -- "curl -L https://raw.githubusercontent.com/dathere/qsv/refs/heads/master/contrib/completions/examples/qsv.fish -o '${COMPLETIONS_DIR}'/qsv.fish"
-fi
-
-if command_exist g; then
-    pueue add -- "curl -L https://raw.githubusercontent.com/Equationzhao/g/master/completions/fish/g.fish -o '${COMPLETIONS_DIR}'/g.fish"
-fi
-
 # Pattern: download from sharkdp GitHub releases
-for cmd in \
-    "bat" \
-    "hyperfine" \
-    "pastel" \
-    ; do
+sharkdp_cmds=(
+    "bat"
+    "hyperfine"
+    "pastel"
+)
+for cmd in "${sharkdp_cmds[@]}"; do
     if command_exist "${cmd}"; then
         update_sharkdp_tool_completions "${cmd}"
     fi
