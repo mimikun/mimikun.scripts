@@ -212,10 +212,6 @@ if command_exist ty; then
     pueue add -- "ty generate-shell-completion fish > '${COMPLETIONS_DIR}'/ty.fish"
 fi
 
-if command_exist lazyworktree ; then
-    pueue add -- "lazyworktree completion fish --code > '${COMPLETIONS_DIR}'/lazyworktree.fish"
-fi
-
 if command_exist jg ; then
     pueue add -- "jg generate shell fish > '${COMPLETIONS_DIR}'/jg.fish"
 fi
