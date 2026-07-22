@@ -1,0 +1,19 @@
+Taskfile.yml
+  s_bf423f1620aa10::t_b106af78269600 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "dd0dd95a10173100491fbd7bad5d00c7d751da25",
+  "prompts": {},
+  "sessions": {
+    "s_bf423f1620aa10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "75d5bf0b-a2cb-4ef5-94ce-27ba82770e2f",
+        "model": "unknown"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
