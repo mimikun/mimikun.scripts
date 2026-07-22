@@ -39,7 +39,7 @@ tasks:
     cmds:
       - task: clean
       - task: switch-master
-      - git branch --list "patch*" | xargs -n 1 git branch -D
+      - git branch --list "patch*" | xargs -r -n 1 git branch -D
     silent: true
   morning-routine:
     desc: Morning routine by Work-day
