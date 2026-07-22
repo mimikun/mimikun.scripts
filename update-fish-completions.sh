@@ -40,83 +40,87 @@ update_sharkdp_tool_completions() {
 pueue add -- "fish -c 'fish_update_completions'"
 
 # Pattern: CMD completions fish
-for cmd in \
-    "ast-grep" \
-    "deno" \
-    "doggo" \
-    "mdbook" \
-    "pez" \
-    "poetry" \
-    "rip" \
-    "rustup" \
-    "starship" \
-    "deadbranch" \
-    "unifly" \
-    ; do
+completions_cmds=(
+    "ast-grep"
+    "deno"
+    "doggo"
+    "mdbook"
+    "pez"
+    "poetry"
+    "rip"
+    "rustup"
+    "starship"
+    "deadbranch"
+    "unifly"
+)
+for cmd in "${completions_cmds[@]}"; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' completions fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
 done
 
 # Pattern: CMD completion fish
-for cmd in \
-    "acli" \
-    "aqua" \
-    "aube" \
-    "autohand" \
-    "berg" \
-    "bin" \
-    "chezmoi" \
-    "envdiff" \
-    "flyctl" \
-    "fnox" \
-    "gitleaks" \
-    "glow" \
-    "goose" \
-    "gopass" \
-    "hk" \
-    "kiro-cli" \
-    "lefthook" \
-    "luarocks" \
-    "mani" \
-    "mise" \
-    "nvs" \
-    "pass-cli" \
-    "pgit" \
-    "pitchfork" \
-    "pnpm" \
-    "runme" \
-    "rvpm" \
-    "sake" \
-    "sunbeam" \
-    "taws" \
-    "turm" \
-    "herdr" \
-    "hyprmoncfg" \
-    "sharedserver" \
-    "tombi" \
-    ; do
+completion_cmds=(
+    "acli"
+    "aqua"
+    "aube"
+    "autohand"
+    "berg"
+    "bin"
+    "chezmoi"
+    "envdiff"
+    "flyctl"
+    "fnox"
+    "gitleaks"
+    "glow"
+    "goose"
+    "gopass"
+    "hk"
+    "kiro-cli"
+    "lefthook"
+    "luarocks"
+    "mani"
+    "mise"
+    "nvs"
+    "pass-cli"
+    "pgit"
+    "pitchfork"
+    "pnpm"
+    "runme"
+    "rvpm"
+    "sake"
+    "sunbeam"
+    "taws"
+    "turm"
+    "herdr"
+    "hyprmoncfg"
+    "sharedserver"
+    "tombi"
+)
+for cmd in "${completion_cmds[@]}"; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' completion fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
 done
 
 # Pattern: CMD --completion fish
-for cmd in \
-    "ccsum" \
-    "ov" \
-    "task" \
-    ; do
+dashdash_completion_cmds=(
+    "ccsum"
+    "ov"
+    "task"
+)
+for cmd in "${dashdash_completion_cmds[@]}"; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' --completion fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
 done
 
 # Pattern: CMD shell-completion fish
-for cmd in \
-    "pkl" \
-    "yq" \
-    ; do
+shell_completion_cmds=(
+    "pkl"
+    "yq"
+)
+for cmd in "${shell_completion_cmds[@]}"; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' shell-completion fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
@@ -143,22 +147,24 @@ if command_exist pipx; then
 fi
 
 # Pattern: CMD shell-completion --shell fish
-for cmd in \
-    "moon" \
-    "wezterm" \
-    ; do
+shell_completion_shell_cmds=(
+    "moon"
+    "wezterm"
+)
+for cmd in "${shell_completion_shell_cmds[@]}"; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' shell-completion --shell fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
 done
 
 # Pattern: CMD --completions fish
-for cmd in \
-    "purple" \
-    "srgn" \
-    "ttl " \
-    "usage" \
-    ; do
+dashdash_completions_cmds=(
+    "purple"
+    "srgn"
+    "ttl "
+    "usage"
+)
+for cmd in "${dashdash_completions_cmds[@]}"; do
     if command_exist "${cmd}"; then
         pueue add -- "'${cmd}' --completions fish > '${COMPLETIONS_DIR}'/'${cmd}'.fish"
     fi
