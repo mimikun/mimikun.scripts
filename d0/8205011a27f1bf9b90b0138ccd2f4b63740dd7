@@ -1,0 +1,19 @@
+update-fish-completions.sh
+  s_f5744cd50fdb73::t_9829aba5a7cf0a 133-142
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "d08205011a27f1bf9b90b0138ccd2f4b63740dd7",
+  "prompts": {},
+  "sessions": {
+    "s_f5744cd50fdb73": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "903131e7-53f3-44b2-9ac5-e567d9ad71d6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
