@@ -125,9 +125,14 @@ export function createDispatcher(options: RunOptions): Dispatcher {
   };
 }
 
-/** Emit a note that is informational only (the tabiew / rustowl HACKs). */
+/**
+ * Emit a note that is informational only (the tabiew / rustowl HACKs).
+ *
+ * Commentary goes to stderr so that stdout carries nothing but the commands
+ * `--dry-run` would enqueue, and can be diffed against another run.
+ */
 export function note(lines: readonly string[]): void {
   for (const line of lines) {
-    console.log(line);
+    console.error(line);
   }
 }
