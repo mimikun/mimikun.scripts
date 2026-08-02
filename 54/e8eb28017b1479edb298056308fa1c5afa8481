@@ -1,0 +1,27 @@
+AGENTS.md
+  s_dfbeb0417dc1b6::t_5e2e654a096f85 1-24
+docs/agents/domain.md
+  s_dfbeb0417dc1b6::t_2debc7263490b4 1-37
+CLAUDE.md
+  s_dfbeb0417dc1b6::t_77cd7f77c52e76 1
+docs/agents/triage-labels.md
+  s_dfbeb0417dc1b6::t_cf7016ae06b260 1-15
+docs/agents/issue-tracker.md
+  s_dfbeb0417dc1b6::t_cf7016ae06b260 1-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "54e8eb28017b1479edb298056308fa1c5afa8481",
+  "prompts": {},
+  "sessions": {
+    "s_dfbeb0417dc1b6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2d68961b-093f-4d6f-a046-7d2e34bb04d3",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
