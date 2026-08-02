@@ -1,0 +1,37 @@
+AGENTS.md
+  s_7d5d109a7dd36b::t_ab99b9747e6bca 31-42
+package.json
+  s_7d5d109a7dd36b::t_6391f6cad5ef47 12
+  s_7d5d109a7dd36b::t_b5ad7b54b94340 7-9
+src/update/cargo-packages.ts
+  s_7d5d109a7dd36b::t_30f731e1d97478 13
+biome.json
+  s_7d5d109a7dd36b::t_defc630891fede 8-9
+  s_7d5d109a7dd36b::t_d3e092780c35ff 1-7,10-13,15-30
+  s_7d5d109a7dd36b::t_96f94958f6fa69 14
+src/lib/pueue.ts
+  s_7d5d109a7dd36b::t_30f731e1d97478 52-55
+Taskfile.yml
+  s_7d5d109a7dd36b::t_d0af04282180f2 25-40
+src/lib/cargo.ts
+  s_7d5d109a7dd36b::t_b3237addd2a09e 59-61
+  s_7d5d109a7dd36b::t_f22a401444c6f4 40
+bun.lock
+  s_7d5d109a7dd36b::t_8c065290f347b7 8,15-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "1566fc774eb04de7d324b7f82a92c3497dbd1954",
+  "prompts": {},
+  "sessions": {
+    "s_7d5d109a7dd36b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "62e664b1-0cf2-4c0c-9a0e-6715a5fe9868",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
