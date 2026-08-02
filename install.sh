@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
 SKIP_ARCH_PKGS_INSTALL=false
 
 PACKAGE_LIST_AUR="${1:-$HOME/.mimikun-pkglists/linux_arch_aur_packages.txt}"
@@ -10,7 +12,6 @@ PACKAGE_LIST_UV="${1:-$HOME/.mimikun-pkglists/linux_uv_tools.txt}"
 PACKAGE_LIST_PIP="${1:-$HOME/.mimikun-pkglists/linux_pip_packages.txt}"
 PACKAGE_LIST_PIPX="${1:-$HOME/.mimikun-pkglists/linux_pipx_packages.txt}"
 PACKAGE_LIST_PNPM="${1:-$HOME/.mimikun-pkglists/linux_pnpm_packages.txt}"
-PACKAGE_LIST_CARGO="${1:-$HOME/.mimikun-pkglists/linux_cargo_packages.txt}"
 PACKAGE_LIST_GH_EXT="${1:-$HOME/.mimikun-pkglists/gh_extension_list.txt}"
 
 # magic
@@ -68,38 +69,7 @@ fi
 ################################################################################################################
 
 echo "install cargo packages"
-function existsCmd() {
-  type -a "$1" >/dev/null 2>&1
-}
-
-# HACK: tabiew can't build
-install_cargo_tabiew() {
-  echo "compiling \"tabiew\" takes a SO LONG time"
-  echo "can't install it from crates.io"
-}
-
-# HACK: rustowl can't build
-install_cargo_rustowl() {
-  echo "compiling \"rustowl\" takes a SO LONG time"
-  echo "can't install it from crates.io"
-}
-
-while read -r line; do
-  if ! existsCmd "$line"; then
-    echo "$line is not found"
-    case "$line" in
-    "tabiew")
-      install_cargo_tabiew
-      ;;
-    "rustowl")
-      install_cargo_rustowl
-      ;;
-    *)
-      pueue add -- "cargo install $line"
-      ;;
-    esac
-  fi
-done <"$PACKAGE_LIST_CARGO"
+bun run "$SCRIPT_DIR/src/install/cargo-packages.ts"
 
 ################################################################################################################
 

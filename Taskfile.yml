@@ -15,6 +15,13 @@ tasks:
     cmds:
       - echo "WIP"
     silent: true
+  typecheck:
+    desc: Type-check the TypeScript sources
+    aliases:
+      - tc
+    cmds:
+      - bun run typecheck
+    silent: true
   pull:
     desc: git pull
     cmds:
