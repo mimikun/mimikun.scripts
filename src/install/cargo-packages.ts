@@ -38,11 +38,11 @@ async function main(): Promise<void> {
       note(unbuildableNote(name));
       continue;
     }
-    await dispatch(`cargo install ${name}`);
+    await dispatch.run(`cargo install ${name}`);
   }
 
   for (const url of GIT_SOURCES) {
-    await dispatch(`cargo install --git ${url} --locked`);
+    await dispatch.run(`cargo install --git ${url} --locked`);
   }
 }
 
