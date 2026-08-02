@@ -27,7 +27,7 @@ async function main(): Promise<void> {
       note(unbuildableNote(pkg.name));
       continue;
     }
-    await dispatch(`cargo install ${pkg.name}`);
+    await dispatch.run(`cargo install ${pkg.name}`);
   }
 }
 
