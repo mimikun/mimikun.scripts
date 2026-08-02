@@ -10,7 +10,7 @@
  * `vup.sh` runs `rustup update` first and makes every `cargo install` wait for
  * it, so it passes that task id via `--after`.
  */
-import { UNBUILDABLE, listPackages, unbuildableNote } from "../lib/cargo.ts";
+import { listPackages, UNBUILDABLE, unbuildableNote } from "../lib/cargo.ts";
 import { dispatch, note, parseArgs } from "../lib/runner.ts";
 
 async function main(): Promise<void> {

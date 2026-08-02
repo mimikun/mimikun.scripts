@@ -22,6 +22,22 @@ tasks:
     cmds:
       - bun run typecheck
     silent: true
+  lint:
+    desc: Check formatting and lints
+    cmds:
+      - bun run lint
+    silent: true
+  fix:
+    desc: Apply formatting and safe lint fixes
+    cmds:
+      - bun run fix
+    silent: true
+  check:
+    desc: Run before committing - fix, then type-check
+    cmds:
+      - task: fix
+      - task: typecheck
+    silent: true
   pull:
     desc: git pull
     cmds:
