@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
 # magic
 if ! test "$(
   sudo -v >>/dev/null
@@ -68,12 +70,7 @@ echo "clean stale /tmp/cargo-install leftovers"
 find /tmp -maxdepth 1 -name 'cargo-install*' -type d -mmin +30 -exec rm -rf {} + 2>/dev/null
 
 echo "update_cargo_packages"
-cargo_outdated_pkgs=$(cargo install-update -l | grep "Yes" | cut -d " " -f 1)
-echo "Update these packages:"
-echo "$cargo_outdated_pkgs"
-for i in $cargo_outdated_pkgs; do
-  task_id=$(pueue add -p --after "$rust_task_id" -- "cargo install $i")
-done
+bun run "$SCRIPT_DIR/src/update/cargo-packages.ts" --after "$rust_task_id"
 
 echo "gup update"
 task_id=$(pueue add -p -- "gup update")

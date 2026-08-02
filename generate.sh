@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
 # magic
 if ! test "$(
   sudo uname >>/dev/null
@@ -14,12 +16,7 @@ sudo pacman -Qqen |
 sudo pacman -Qqem |
   LC_ALL=C sort >"$HOME/.mimikun-pkglists/linux_arch_aur_packages.txt"
 
-cargo install-update --list |
-  tail -n +4 |
-  sed -e "s/ /\t/g" |
-  cut -f 1 |
-  sed "/^\$/d" |
-  LC_ALL=C sort >"$HOME/.mimikun-pkglists/linux_cargo_packages.txt"
+bun run "$SCRIPT_DIR/src/generate/cargo-package-list.ts"
 
 pip freeze |
   sed \
