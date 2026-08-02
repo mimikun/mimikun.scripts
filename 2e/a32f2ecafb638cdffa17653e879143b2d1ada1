@@ -1,0 +1,29 @@
+src/generate/package-lists.ts
+  s_7d5d109a7dd36b::t_bdebbe2cde406d 1-37,40-124,126-171
+  s_7d5d109a7dd36b::t_fb82a48666b8de 125
+  s_7d5d109a7dd36b::t_94a34c0e53fcfa 38-39
+AGENTS.md
+  s_7d5d109a7dd36b::t_2aa1eafb6c4edb 62
+  s_7d5d109a7dd36b::t_6a69ed0c26d9e5 72
+  s_7d5d109a7dd36b::t_e83393f07c3e47 19-20
+src/lib/platform.ts
+  s_7d5d109a7dd36b::t_10ef9d0f121265 37-45
+generate.sh
+  s_7d5d109a7dd36b::t_6f07f245ed4b37 1-6,10,12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "2ea32f2ecafb638cdffa17653e879143b2d1ada1",
+  "prompts": {},
+  "sessions": {
+    "s_7d5d109a7dd36b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "62e664b1-0cf2-4c0c-9a0e-6715a5fe9868",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
