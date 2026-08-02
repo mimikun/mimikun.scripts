@@ -5,16 +5,16 @@
  * Replaces `vup.sh`'s cargo section, `mimikun.sh/src/update/cargo-packages.sh`,
  * and `powershell/Invoke-UpdateCargoPackage.ps1`.
  *
- * Usage: cargo-packages.ts [--no-pueue | --dry-run] [--after <task-id>]...
+ * Usage: cargo-packages.ts [--no-pueue | --dry-run] [--serial] [--after <task-id>]...
  *
  * `vup.sh` runs `rustup update` first and makes every `cargo install` wait for
  * it, so it passes that task id via `--after`.
  */
 import { listPackages, UNBUILDABLE, unbuildableNote } from "../lib/cargo.ts";
-import { dispatch, note, parseArgs } from "../lib/runner.ts";
+import { createDispatcher, note, parseArgs } from "../lib/runner.ts";
 
 async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+  const dispatch = createDispatcher(parseArgs(process.argv.slice(2)));
   const outdated = (await listPackages()).filter((pkg) => pkg.needsUpdate);
 
   console.error("Update these packages:");
@@ -27,7 +27,7 @@ async function main(): Promise<void> {
       note(unbuildableNote(pkg.name));
       continue;
     }
-    await dispatch(options, `cargo install ${pkg.name}`);
+    await dispatch(`cargo install ${pkg.name}`);
   }
 }
 
