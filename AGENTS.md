@@ -16,7 +16,8 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
 毎日走らせるスクリプトの置き場としてはリスクが勝った。
 
 - `src/lib/` — 共有部分。**OS 差・外部コマンド呼び出しはここに閉じる**
-  - `platform.ts` パッケージリストのパス（`linux_*` / `windows_*` の差はここだけ）
+  - `platform.ts` パッケージリストのパス（`linux_*` / `windows_*` の差はここだけ。
+    OS をまたいで同じものは `sharedPkgListPath()`）
   - `cmd.ts` `commandExists()` / `envVarSet()`
   - `pueue.ts` `pueue add` の薄いラッパー。`TaskId` は branded type
   - `runner.ts` `--no-pueue` / `--dry-run` / `--serial` / `--after` の解釈と実行
@@ -58,7 +59,7 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
 
 **シム側の変更は chezmoi のソースを編集して `chezmoi apply`。** 配備先を直接編集すると drift になる。
 
-移管済み: cargo（generate / install / update）、fish 補完。
+移管済み: パッケージリストの生成（全9種）、cargo の install / update、fish 補完。
 
 **補完やパッケージのような「対象が増え続けるもの」は表にする。**
 `src/update/fish-completions.ts` がその形。ツールを足す作業が
@@ -68,7 +69,7 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
 
 未移管の処理は、今もここ以外に実装がある。移管するときは**こちらを正として読む**こと。
 
-- chezmoi の `private_dot_local/bin/executable_*` — cargo / fish 補完 以外の32本
+- chezmoi の `private_dot_local/bin/executable_*` — 移管済み以外の29本
 - chezmoi の PowerShell プロファイル — cargo 以外の関数
 - `mimikun/mimikun.sh` の `src/**` と `powershell/**` は**どこからも読み込まれていない死んだコピー**。
   2026-02 以降動いておらず chezmoi 側と乖離している。移管が済み次第あちらから削除し、最終的にアーカイブする

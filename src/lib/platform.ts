@@ -34,3 +34,12 @@ export function pkgListDir(): string {
 export function pkgListPath(name: string): string {
   return join(pkgListDir(), `${osName()}_${name}`);
 }
+
+/**
+ * Path to a package list that is the same on every OS, so it carries no
+ * prefix. Only the gh extension list is like this: extensions are named
+ * `owner/repo` and install identically everywhere.
+ */
+export function sharedPkgListPath(name: string): string {
+  return join(pkgListDir(), name);
+}
