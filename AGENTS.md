@@ -19,7 +19,7 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
   - `platform.ts` パッケージリストのパス（`linux_*` / `windows_*` の差はここだけ）
   - `cmd.ts` `commandExists()` / `envVarSet()`
   - `pueue.ts` `pueue add` の薄いラッパー。`TaskId` は branded type
-  - `runner.ts` `--no-pueue` / `--dry-run` / `--after` の解釈と実行
+  - `runner.ts` `--no-pueue` / `--dry-run` / `--serial` / `--after` の解釈と実行
   - `cargo.ts` `cargo install-update --list` の唯一のパーサ
 - `src/{generate,install,update}/` — 実行可能スクリプト。`#!/usr/bin/env bun`
 - ルートの `*.sh` は**オーケストレータとして残す**。移管済みの部分は TS を呼ぶだけにし、
@@ -27,6 +27,10 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
 
 新しいスクリプトには必ず `--dry-run` を持たせる。移管の前後で
 「積まれるコマンド集合が変わっていないこと」を差分で確認するため。
+
+呼び出し側ごとに pueue の積み方が違うことがある。**その違いはフラグで表現し、
+実装を分けない。** 現状 `--serial`（各タスクが前のタスクを待つ。cargo のビルドを
+1本ずつ流す）と `--after <id>`（外から渡された依存を待つ）の2つ。
 
 **コミット前に `task check` を通す**（`biome check --write` → `tsc --noEmit`）。
 個別に回すなら `task lint` / `task fix` / `task typecheck`。
@@ -41,12 +45,26 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
 - **パッケージマネージャは bun。** ここは bun をランタイムとして選んだ repo なので、
   インストーラだけ pnpm にする理由がない
 
+### 呼び出し元
+
+移管済みの処理は、外から**シム経由でここを呼ぶ**。シムには実装を書かない。
+
+- **Linux**: chezmoi の `private_dot_local/bin/executable_*` → `~/.local/bin` に配備。
+  リポジトリの場所は `${MIMIKUN_SCRIPTS_DIR:-$HOME/scripts}`
+- **Windows / pwsh**: chezmoi の `dot_config/powershell/Microsoft.PowerShell_profile.ps1.tmpl` の
+  `Invoke-MimikunCargoScript`。同じ環境変数で解決する
+- ルートの `*.sh`（`generate.sh` / `install.sh` / `vup.sh`）
+
+**シム側の変更は chezmoi のソースを編集して `chezmoi apply`。** 配備先を直接編集すると drift になる。
+
+移管済み: cargo（generate / install / update）。
+
 ### 移管元（まだ残っている重複）
 
-同じ処理が今もここ以外に存在する。移管するときは**こちらを正として読む**こと。
+未移管の処理は、今もここ以外に実装がある。移管するときは**こちらを正として読む**こと。
 
-- **Linux で実際に動くもの**: chezmoi の `private_dot_local/bin/executable_*`（37本、`~/.local/bin` に配備）
-- **Windows で実際に動くもの**: chezmoi の `dot_config/powershell/Microsoft.PowerShell_profile.ps1.tmpl` 内の関数定義
+- chezmoi の `private_dot_local/bin/executable_*` — cargo 以外の33本
+- chezmoi の PowerShell プロファイル — cargo 以外の関数
 - `mimikun/mimikun.sh` の `src/**` と `powershell/**` は**どこからも読み込まれていない死んだコピー**。
   2026-02 以降動いておらず chezmoi 側と乖離している。移管が済み次第あちらから削除し、最終的にアーカイブする
 

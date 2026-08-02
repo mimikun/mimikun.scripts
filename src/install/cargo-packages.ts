@@ -5,12 +5,12 @@
  * Replaces `install.sh`'s cargo section, `mimikun.sh/src/install/cargo-packages.sh`,
  * and `powershell/Invoke-InstallCargoPackage.ps1`.
  *
- * Usage: cargo-packages.ts [--no-pueue | --dry-run] [--after <task-id>]...
+ * Usage: cargo-packages.ts [--no-pueue | --dry-run] [--serial] [--after <task-id>]...
  */
 import { UNBUILDABLE, unbuildableNote } from "../lib/cargo.ts";
 import { commandExists } from "../lib/cmd.ts";
 import { pkgListPath } from "../lib/platform.ts";
-import { dispatch, note, parseArgs } from "../lib/runner.ts";
+import { createDispatcher, note, parseArgs } from "../lib/runner.ts";
 
 /** Packages installed from a git remote rather than crates.io. */
 const GIT_SOURCES = ["https://github.com/Adarsh-Roy/gthr"];
@@ -27,7 +27,7 @@ async function readPackageList(path: string): Promise<string[]> {
 }
 
 async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+  const dispatch = createDispatcher(parseArgs(process.argv.slice(2)));
   const packages = await readPackageList(pkgListPath("cargo_packages.txt"));
 
   for (const name of packages) {
@@ -38,11 +38,11 @@ async function main(): Promise<void> {
       note(unbuildableNote(name));
       continue;
     }
-    await dispatch(options, `cargo install ${name}`);
+    await dispatch(`cargo install ${name}`);
   }
 
   for (const url of GIT_SOURCES) {
-    await dispatch(options, `cargo install --git ${url} --locked`);
+    await dispatch(`cargo install --git ${url} --locked`);
   }
 }
 

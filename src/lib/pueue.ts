@@ -25,9 +25,21 @@ function addArgs(command: string, options: AddOptions): string[] {
   return args;
 }
 
-/** Render the `pueue` invocation as a shell-ish line, for `--dry-run` output. */
-export function formatAdd(command: string, options: AddOptions = {}): string {
-  return `pueue ${addArgs(command, options).join(" ")}`;
+/**
+ * Render the `pueue` invocation as a shell-ish line, for `--dry-run` output.
+ * `after` also accepts placeholder strings, since a dry run has no real ids.
+ */
+export function formatAdd(
+  command: string,
+  options: { after?: readonly (TaskId | string)[] } = {},
+): string {
+  const args = ["add"];
+  const after = options.after ?? [];
+  if (after.length > 0) {
+    args.push("--after", ...after.map(String));
+  }
+  args.push("--", command);
+  return `pueue ${args.join(" ")}`;
 }
 
 /** Enqueue a task without caring about its id. */
