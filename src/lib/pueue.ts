@@ -49,7 +49,10 @@ export async function addWithId(command: string, options: AddOptions = {}): Prom
   const sep = args.indexOf("--");
   args.splice(sep, 0, "--print-task-id");
 
-  const proc = Bun.spawn(["pueue", ...args], { stdout: "pipe", stderr: "inherit" });
+  const proc = Bun.spawn(["pueue", ...args], {
+    stdout: "pipe",
+    stderr: "inherit",
+  });
   const stdout = await new Response(proc.stdout).text();
   const code = await proc.exited;
   if (code !== 0) {

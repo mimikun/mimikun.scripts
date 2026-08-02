@@ -28,7 +28,18 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
 新しいスクリプトには必ず `--dry-run` を持たせる。移管の前後で
 「積まれるコマンド集合が変わっていないこと」を差分で確認するため。
 
-型チェックは `task typecheck`（= `bun run typecheck`）。
+**コミット前に `task check` を通す**（`biome check --write` → `tsc --noEmit`）。
+個別に回すなら `task lint` / `task fix` / `task typecheck`。
+
+### `~/.claude/rules/typescript.md` から意図的に外している点
+
+グローバルのルールは prettier + eslint と pnpm を指定しているが、この repo は次の2点で外れる。
+**グローバル側は変えていない**（他プロジェクトの既定として妥当なため）。
+
+- **formatter / linter は biome。** TS は8ファイル・331行で、React も型情報を使う lint も要らない。
+  prettier + eslint の2ツール構成は設定ファイルと依存が増えるだけで見合わない
+- **パッケージマネージャは bun。** ここは bun をランタイムとして選んだ repo なので、
+  インストーラだけ pnpm にする理由がない
 
 ### 移管元（まだ残っている重複）
 

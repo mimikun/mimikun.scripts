@@ -37,10 +37,7 @@ const ROW = /^(\S+)\s+(\S+)\s+(.+?)\s+(Yes|No)$/;
 export const UNBUILDABLE: ReadonlySet<string> = new Set(["tabiew", "rustowl"]);
 
 export function unbuildableNote(name: string): string[] {
-  return [
-    `compiling "${name}" takes a SO LONG time`,
-    "can't install it from crates.io",
-  ];
+  return [`compiling "${name}" takes a SO LONG time`, "can't install it from crates.io"];
 }
 
 export function parseInstallUpdateList(output: string): CargoPackage[] {
@@ -59,13 +56,9 @@ export function parseInstallUpdateList(output: string): CargoPackage[] {
     if (match === null) {
       throw new Error(`unexpected row in \`cargo install-update --list\`: ${JSON.stringify(line)}`);
     }
-    const [, name, installed, latest, needsUpdate] = match as unknown as [
-      string,
-      string,
-      string,
-      string,
-      string,
-    ];
+    // Every group in ROW is mandatory, so a match always fills all four. The
+    // defaults exist only to keep the types honest without an unchecked cast.
+    const [, name = "", installed = "", latest = "", needsUpdate = ""] = match;
     packages.push({ name, installed, latest, needsUpdate: needsUpdate === "Yes" });
   }
   return packages;
