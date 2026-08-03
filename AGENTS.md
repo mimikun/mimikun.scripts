@@ -201,7 +201,16 @@ signal にならない）。
 残っているのは移管元の掃除と、まだ手つかずの葉。
 
 1. **`mimikun/mimikun.sh` の `src/**` と `powershell/**` を削除してアーカイブする。**
-   移管が済んだので条件を満たした
+   移管が済んだので条件を満たした（最後の1件だった `editorconfig` は 2026-08-03 に
+   `src/misc/editorconfig.ts` へ移管済み）。
+   - **あちらの README のロードマップは `editorconfig` が未チェックのままだが、
+     それは古い。** 消す対象のファイルなので直していない。**あの README を根拠に
+     再実装しないこと。**
+   - 削除の前に、`src/**` と `powershell/**` の**1ファイルずつ**について
+     「生きた対応物はどれか」を言えるようにする（下の節）。
+     2026-08-03 にこれをやって `apt-packages.sh` の移管漏れが1件出た
+   - **アーカイブは外向きの操作なので、実行前に必ず本人に確認する。**
+     `gh repo archive` を勝手に叩かないこと。ファイル削除の PR とは別の判断
 2. chezmoi の PowerShell プロファイル — cargo 以外の関数。
    `all.ts` は Windows でも動くので、`Invoke-*` を減らせる余地がある
 3. chezmoi に残る18本。`update_pip_packages` / `update_poetry` / `update_brew` あたりが次。
