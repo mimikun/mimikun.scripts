@@ -247,13 +247,24 @@ signal にならない）。
 **方針: python のアプリは `uv tool` に一本化する**（2026-08-03 決定）。
 `uv tool` の更新は `all.ts` の `SIMPLE` に入った。残りは下の順。
 
-3. **pipx の34本を `uv tool` へ移す。** `poetry` は移さず捨てる（使っていない）。
-   移し終えたら generate / install の表から `pipx` 行を消し、
-   `linux_pipx_packages.txt` も消す
+**pipx は空になった**（2026-08-03、`dotfiles#3605`）。42本のうち34本を
+`uv tool install --python 3.12` で移し、7本は既に uv 側にあったので pipx から
+外しただけ、`poetry` は捨てた。失敗0。`uv tool list` は 26 → 61本。
+generate / install の表から `pipx` 行が消えたのはこの結果。
+
+残りはこの順。
+
 4. **pip の2本を削除。** 906行の中身はほぼ推移的依存（`Jinja2` `MarkupSafe`
    `Werkzeug` …）で、アプリが `uv tool` 側へ出れば全件 upgrade を残す理由が消える
-5. **3.10 組を既定バージョンへ寄せる**（下記）。**3 と混ぜないこと。**
+5. **3.10 組を既定バージョンへ寄せる**（下記）。**4 と混ぜないこと。**
    混ぜると移管の差分が正常化の差分に埋もれる
+
+**移管の検証は、リストの件数ではなくエントリポイントで行う。**
+パッケージ名と実行ファイル名は一致しない（`sherlock-project` → `sherlock`、
+`a2a-handler` → `handler`、`toolong` → `tl`）ので、名前を数えても
+「使えなくなったコマンド」は見つからない。pipx の移管では、先に
+`pipx list --json` から60個のエントリポイントを控え、移管後に1件ずつ
+PATH で引いた。59件一致し、残る `gptme-nc` は upstream が 0.32.1 で消したものだった。
 
 ### uv tool の python は、更新では要らず、入れ直しでだけ要る
 

@@ -68,14 +68,6 @@ const LISTS: ListSpec[] = [
     parse: (stdout) => lines(stdout).map((line) => line.replace(/[=@].*$/, "").trim()),
   },
   {
-    name: "pipx",
-    // `name version`
-    file: "pipx_packages.txt",
-    requires: "pipx",
-    argv: ["pipx", "list", "--short"],
-    parse: (stdout) => lines(stdout).map((line) => line.split(" ")[0] as string),
-  },
-  {
     name: "pnpm",
     file: "pnpm_packages.txt",
     requires: "pnpm",
