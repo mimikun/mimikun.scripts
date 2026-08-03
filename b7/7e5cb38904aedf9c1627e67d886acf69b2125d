@@ -1,0 +1,20 @@
+AGENTS.md
+  s_3037b6df4d5a60::t_e9c51998624302 116-119
+  s_3037b6df4d5a60::t_93d679aa673a46 203-208
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "b77e5cb38904aedf9c1627e67d886acf69b2125d",
+  "prompts": {},
+  "sessions": {
+    "s_3037b6df4d5a60": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "70bd2622-1c53-4bee-8703-ebc89a8467f6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
