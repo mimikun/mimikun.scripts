@@ -236,28 +236,66 @@ signal にならない）。
   pueue にも `--dry-run` にも乗らない。`all.ts` の `rebootCheck()` が `re_boot` を
   呼んでおり、この向き（TS → shell）で正しい
 
-残る移管対象は pip の2本だけ。
+**移管対象は全部片付いた**（2026-08-03）。**この節に残っているのは分類だけ。**
 
-- `update_pip_packages` と `pueue_update_pip_packages` — **同じ処理の2実装。**
-  前者は `--after` で鎖にし、後者は全部並列に積む。どちらも変数名が
-  `pip_outdated_pkgs` だが中身は `pip freeze` なので、outdated ではなく全件。
-  **移す前に、そもそも全件 upgrade を続けるかを決める**（mise 管理の python 3.12 に
-  10KB 分入っており、全件 upgrade は依存を壊しうる）。2026-08-03 時点で保留
+**方針: python のアプリは `uv tool` に一本化した。** 更新は `all.ts` の
+`SIMPLE` にある1行。経過:
 
-**方針: python のアプリは `uv tool` に一本化する**（2026-08-03 決定）。
-`uv tool` の更新は `all.ts` の `SIMPLE` に入った。残りは下の順。
+- **pipx**（`dotfiles#3605`）— 42本のうち34本を `uv tool install --python 3.12`
+  で移し、7本は既に uv 側にあったので pipx から外しただけ、`poetry` は捨てた。
+  generate / install の表から `pipx` 行が消えたのはこの結果
+- **pip**（`dotfiles#3606`）— `update_pip_packages` と
+  `pueue_update_pip_packages` を削除。**同じ処理の2実装で、前者は `--after` で
+  鎖にし後者は全部並列。** どちらも変数名は `pip_outdated_pkgs` だが中身は
+  `pip freeze` なので outdated ではなく全件だった
 
-**pipx は空になった**（2026-08-03、`dotfiles#3605`）。42本のうち34本を
-`uv tool install --python 3.12` で移し、7本は既に uv 側にあったので pipx から
-外しただけ、`poetry` は捨てた。失敗0。`uv tool list` は 26 → 61本。
-generate / install の表から `pipx` 行が消えたのはこの結果。
+**`uv tool list` は 26 → 108本。失敗0。**
 
-残りはこの順。
+### 906行の pip リストは、ほぼ依存だった
 
-4. **pip の2本を削除。** 906行の中身はほぼ推移的依存（`Jinja2` `MarkupSafe`
-   `Werkzeug` …）で、アプリが `uv tool` 側へ出れば全件 upgrade を残す理由が消える
-5. **3.10 組を既定バージョンへ寄せる**（下記）。**4 と混ぜないこと。**
-   混ぜると移管の差分が正常化の差分に埋もれる
+**`pip freeze` はアプリと依存を区別しない。** これが「pip に何が入っているか」を
+読めなくしていた原因。**消す前に必ず分解すること。**
+
+| 内訳 | 本数 |
+|---|---|
+| 推移的依存 | 811 |
+| 根 — コマンドを持つ（アプリ） | 60 |
+| 根 — コマンドを持たない（ライブラリ） | 36 |
+
+**更新スクリプトが実際に守っていたのは60本のアプリだけ。** 47本を uv へ移し、
+10本は uv に既にあったので pip の copy を消し、`pipx` は廃止、
+`pbr`（ビルド依存が根に漏れたもの）と `aider-install`（本体は uv 側の
+`aider-chat`）は据え置いた。
+
+**pip のリストと install 経路は残っている。** あの環境には意図して入れた
+ライブラリがまだある — `neovim`（pynvim、**Neovim の python provider**）、
+`tree-sitter-*`、各種 SDK。**環境ごと作り直す案は取れない。**
+
+### pipx と uv は同じ `~/.local/bin` を取り合う
+
+`pipx uninstall` が、**uv が作った shim を持っていくこと**がある。
+pipx 移管の直後は pip の copy が PATH の先で覆っていたので露出せず、
+pip を消して初めて `asmdiff` と `prek` が消えているのが分かった。
+
+**`uv tool list` が公開すると言っている entrypoint が `~/.local/bin` に
+実在するかを照合すること。** venv の `bin/` を見てはいけない — 依存の
+console script も入っており、uv はそれらを公開しない。復旧は
+`uv tool install --force`（`--python` を付けて元のピンを保つ）。
+
+### 残っている葉
+
+1. **孤児依存の掃除。** 58本を消した結果、その依存が孤児になった。
+   `pip list --not-required` は 848 → 214行だが、**その214には `agate-dbf`
+   `agate-excel`（csvkit の依存）のような残骸が「根」として混ざっている。**
+   掃除より先に生成を `--not-required` へ切り替えると、残骸を焼き付ける。
+   **順序は「掃除 → 切り替え」。** 対象は、移管前に控えた36本のライブラリ根に
+   入っていないもの
+2. **3.10 組を既定バージョンへ寄せる**（下記）。**1 と混ぜないこと。**
+
+**`pip` は RTK に横取りされる。** `pip list --not-required` を Bash から叩くと
+整形済みの要約が返り、行数を数えると嘘になる（214 を 1 と読んだ）。
+**数える用途では `rtk proxy pip ...` を使う。** `src/**` の
+`Bun.spawn(["pip", ...])` は hook を通らないので影響を受けない。
 
 **移管の検証は、リストの件数ではなくエントリポイントで行う。**
 パッケージ名と実行ファイル名は一致しない（`sherlock-project` → `sherlock`、
