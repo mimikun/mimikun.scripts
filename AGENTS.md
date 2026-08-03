@@ -17,8 +17,10 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
 
 - `src/lib/` — 共有部分。**OS 差・外部コマンド呼び出しはここに閉じる**
   - `platform.ts` パッケージリストのパス（`linux_*` / `windows_*` の差はここだけ。
-    OS をまたいで同じものは `sharedPkgListPath()`）
+    OS をまたいで同じものは `sharedPkgListPath()`）。`machineArch()` は
+    `uname -m` 相当で、リリースのアセット名を組む用
   - `cmd.ts` `commandExists()` / `envVarSet()`
+  - `shell.ts` `sq()` — pueue に渡すコマンド文字列のクォート
   - `pueue.ts` `pueue add` の薄いラッパー。`TaskId` は branded type
   - `runner.ts` `--no-pueue` / `--dry-run` / `--serial` / `--after` の解釈と実行
   - `cargo.ts` `cargo install-update --list` の唯一のパーサ
@@ -83,7 +85,11 @@ stderr へ出す**（`note()` がそうしている）。混ぜると差分が�
 PR は「移管先 → シム → 死んだコピーの削除」の順にマージする。
 シムは移管先のファイルが master にあることを前提にするため。
 
-移管済み: パッケージリストの生成（9種）と導入（8種）、cargo の update、fish 補完。
+移管済み: パッケージリストの生成（9種）と導入（8種）、cargo の update、fish 補完、
+docker compose プラグインの update。
+
+**移すのではなく消えたもの:** chromedriver / geckodriver / twitch-cli（mise と aqua へ）、
+`update_pnpm`（`pnpm self-update` に置換）。
 
 **補完やパッケージのような「対象が増え続けるもの」は表にする。**
 `src/update/fish-completions.ts` がその形。ツールを足す作業が
@@ -93,7 +99,7 @@ PR は「移管先 → シム → 死んだコピーの削除」の順にマー�
 
 未移管の処理は、今もここ以外に実装がある。移管するときは**こちらを正として読む**こと。
 
-- chezmoi の `private_dot_local/bin/executable_*` — 移管済み以外の21本
+- chezmoi の `private_dot_local/bin/executable_*` — 移管済み以外の19本
 - chezmoi の PowerShell プロファイル — cargo 以外の関数
 - `mimikun/mimikun.sh` の `src/**` と `powershell/**` は**どこからも読み込まれていない死んだコピー**。
   2026-02 以降動いておらず chezmoi 側と乖離している。移管が済み次第あちらから削除し、最終的にアーカイブする
@@ -119,16 +125,36 @@ PR は「移管先 → シム → 死んだコピーの削除」の順にマー�
 実際の Chrome は 151 で、chromedriver は起動できない状態だった。
 **この repo に置くのは、パッケージマネージャに載らないものだけにする。**
 
+### マシンごとに要否が変わる処理は、消さずに実行時に判定する
+
+`update_docker_compose` はこのパターンの1本目。Docker Desktop のマシンでは不要
+（compose プラグインを Docker Desktop 自身が配り、`cli-plugins` の他の項目は
+すべて自分のツリーへのシンボリックリンク。そこへ手動ダウンロード版を上書きすると
+Docker Desktop の更新と綱引きになる）だが、Docker Engine のマシンでは要る。
+
+**「このマシンで要らない」は削除の理由にならない。** 判定を実行時に持たせる。
+`src/update/docker-compose.ts` は `~/.docker/desktop` の有無で見ている
+（daemon 不要・WSL 固有でもない。`docker info` はデーモンが落ちていると失敗し、
+プラグインのシンボリックリンクは過去の自分の実行が実体ファイルに変えてしまっていて
+signal にならない）。
+
 ### 次の一歩
 
 **`vup.sh` が実装の残る最後のシェル。ただし直接は畳めない。**
-`update_mise` / `update_docker_compose` / `update_pnpm` などを呼ぶ
-オーケストレータなので、**葉のほうを先に移さないと呼び出し先が消えない。**
+`update_mise` などを呼ぶオーケストレータなので、
+**葉のほうを先に移さないと呼び出し先が消えない。**
 
 順序の候補:
 
-1. 残りの `update_*` の葉。**1本ずつ、上の「移管先は TypeScript とは限らない」を先に通す**
-2. 最後に `vup.sh` 本体
+1. `update_mise`（174行）。`paleovim-master` / `zig-master` が上流の git SHA や
+   `ziglang.org/download/index.json` を見て、`~/.cache/*.txt` と突き合わせてから
+   `mise uninstall` → `mise install` を積む。mise は `ref:master` の上流更新を
+   検知しないのでパッケージマネージャでは表現できない。**表にできる形**
+   （ツール名・バージョン取得元・キャッシュファイルの3列）。
+   **`vup.sh` の 28-40 行が `update_mise zig-master` と同じキャッシュファイルを見る
+   重複になっている。** 移管のときに1本化する
+2. 残りの `update_*` の葉。**1本ずつ、上の2節を先に通す**
+3. 最後に `vup.sh` 本体
 
 **2026-08-16 に一度 `vup` を回し、cargo と fish 補完がいつもどおり pueue に積まれるか見る。**
 積まれていなければ、どこかの移管で必須の分岐を1つ落としている。

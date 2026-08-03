@@ -22,6 +22,23 @@ export function osName(): OsName {
   }
 }
 
+/**
+ * What `uname -m` prints, e.g. `x86_64`. The shell originals built release
+ * asset names out of `$(uname -s)-$(uname -m)`; resolving it here means the
+ * generated command carries a literal name instead of a substitution, so
+ * `--dry-run` shows the URL that will actually be fetched.
+ */
+export function machineArch(): string {
+  switch (process.arch) {
+    case "x64":
+      return "x86_64";
+    case "arm64":
+      return "aarch64";
+    default:
+      throw new Error(`no uname -m mapping for ${process.arch}`);
+  }
+}
+
 export function pkgListDir(): string {
   return join(homedir(), ".mimikun-pkglists");
 }

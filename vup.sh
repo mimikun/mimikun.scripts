@@ -48,8 +48,8 @@ pueue add -- "gh extensions upgrade --all"
 echo "flyctl version upgrade"
 pueue add -- "flyctl version upgrade"
 
-echo "update_pnpm"
-pueue add -- "update_pnpm"
+echo "pnpm self-update"
+pueue add -- "pnpm self-update"
 
 echo "update neovim managed by bob"
 bob_task_id=$(pueue add -p -- "bob use latest")
@@ -94,8 +94,8 @@ pueue add -- "cargo cache -a"
 echo "upgrade pixi"
 #pueue add -- "pixi self-upgrade"
 
-echo "update_docker_compose"
-update_docker_compose
+echo "update docker compose plugin"
+bun run "$SCRIPT_DIR/src/update/docker-compose.ts" --no-pueue
 
 # chromedriver, geckodriver and twitch-cli used to be updated here by hand.
 # They are package-manager tools now, so `mise upgrade` and `aqua update`
