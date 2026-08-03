@@ -12,7 +12,7 @@
  */
 import { commandExists, envVarSet } from "../lib/cmd.ts";
 import { completionFile, completionsDir } from "../lib/fish.ts";
-import { createDispatcher, parseArgs } from "../lib/runner.ts";
+import { createDispatcher, type Dispatcher, parseArgs } from "../lib/runner.ts";
 import { sq } from "../lib/shell.ts";
 
 type Recipe =
@@ -363,9 +363,8 @@ async function sharkdpChain(cmd: string): Promise<string[]> {
   ];
 }
 
-async function main(): Promise<void> {
-  const dispatch = createDispatcher(parseArgs(process.argv.slice(2)));
-
+/** Queue a refresh for every completion this machine can generate. */
+export async function enqueue(dispatch: Dispatcher): Promise<void> {
   await dispatch.run("fish -c 'fish_update_completions'");
 
   for (const entry of buildEntries()) {
@@ -393,4 +392,8 @@ async function main(): Promise<void> {
   }
 }
 
-await main();
+async function main(): Promise<void> {
+  await enqueue(createDispatcher(parseArgs(process.argv.slice(2))));
+}
+
+if (import.meta.main) await main();

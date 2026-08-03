@@ -61,29 +61,24 @@ export function parseArgs(argv: readonly string[]): RunOptions {
   return options;
 }
 
-/** A task id, or the `#n` placeholder a dry run prints in its place. */
-type Handle = TaskId | string;
+/**
+ * A task id, or the `#n` placeholder a dry run prints in its place.
+ *
+ * Steps hand these to each other so a dependency never has to be spelled out
+ * as a number on a command line. `vup` used to pass real pueue ids to child
+ * processes as `--after 42`, which meant a dry run had nothing to pass.
+ */
+export type Handle = TaskId | string;
 
 export type Dispatcher = {
-  /** Carry out one command. */
-  run(command: string): Promise<void>;
+  /** Carry out one command, handing back something later steps can wait for. */
+  run(command: string, after?: readonly Handle[]): Promise<Handle>;
   /**
    * Carry out commands in order, each waiting for the one before it. Used where
    * the steps are a single unit -- download, unpack, copy, clean up -- so they
-   * chain even when `--serial` is off.
+   * chain even when `--serial` is off. Hands back the tail of the chain.
    */
-  runChain(commands: readonly string[]): Promise<void>;
-  /**
-   * Carry out `command` once every task enqueued so far has finished. Used for
-   * the step that records the result of the others, such as regenerating the
-   * cargo package list after the installs.
-   *
-   * `vup` used to write this as `--after "$task_id"` where `$task_id` was
-   * whichever install happened to be queued last. With the installs running in
-   * parallel that only ever waited for one of them, so the list could be
-   * written while the rest were still building.
-   */
-  runAfterAll(command: string): Promise<void>;
+  runChain(commands: readonly string[], after?: readonly Handle[]): Promise<Handle>;
 };
 
 export function createDispatcher(options: RunOptions): Dispatcher {
@@ -91,8 +86,6 @@ export function createDispatcher(options: RunOptions): Dispatcher {
   // has no real ids, so a counter stands in for display.
   let previous: Handle | undefined;
   let synthetic = 0;
-  // Everything this dispatcher has enqueued, for `runAfterAll`.
-  const enqueued: Handle[] = [];
 
   async function enqueue(command: string, after: readonly Handle[]): Promise<Handle> {
     switch (options.mode) {
@@ -110,13 +103,6 @@ export function createDispatcher(options: RunOptions): Dispatcher {
     }
   }
 
-  /** `enqueue`, remembering the handle so `runAfterAll` can wait on it. */
-  async function track(command: string, after: readonly Handle[]): Promise<Handle> {
-    const handle = await enqueue(command, after);
-    enqueued.push(handle);
-    return handle;
-  }
-
   /** What a new unit of work should wait for before it starts. */
   function head(): readonly Handle[] {
     if (options.serial && previous !== undefined) return [previous];
@@ -124,25 +110,20 @@ export function createDispatcher(options: RunOptions): Dispatcher {
   }
 
   return {
-    async run(command: string): Promise<void> {
-      previous = await track(command, head());
+    async run(command: string, after?: readonly Handle[]): Promise<Handle> {
+      previous = await enqueue(command, after ?? head());
+      return previous;
     },
 
-    async runChain(commands: readonly string[]): Promise<void> {
-      let waitFor = head();
+    async runChain(commands: readonly string[], after?: readonly Handle[]): Promise<Handle> {
+      let waitFor = after ?? head();
       for (const command of commands) {
-        const id = await track(command, waitFor);
+        const id = await enqueue(command, waitFor);
         waitFor = [id];
       }
       // A later `--serial` task queues behind the whole chain, not part of it.
       previous = waitFor[0];
-    },
-
-    async runAfterAll(command: string): Promise<void> {
-      // With nothing enqueued there is nothing to wait for, so this falls back
-      // to whatever the caller was told to wait for.
-      const after = enqueued.length > 0 ? enqueued : options.after;
-      previous = await track(command, after);
+      return previous ?? "";
     },
   };
 }
