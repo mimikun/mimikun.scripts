@@ -12,11 +12,48 @@
  * Usage: all.ts [--no-pueue | --dry-run] [--serial] [--after <task-id>]...
  */
 import { commandExists } from "../lib/cmd.ts";
+import { osName } from "../lib/platform.ts";
 import { createDispatcher, type Dispatcher, type Handle, note, parseArgs } from "../lib/runner.ts";
 import { enqueue as enqueueCargo } from "./cargo-packages.ts";
 import { enqueue as enqueueCompose } from "./docker-compose.ts";
 import { enqueue as enqueueFishCompletions } from "./fish-completions.ts";
 import { enqueue as enqueueMiseRefs } from "./mise-refs.ts";
+
+/**
+ * The OS package managers, keyed by the command that says which OS this is.
+ *
+ * The shell version branched on `os_info -t` against three hard-coded strings,
+ * which meant an OS it did not know about silently did nothing, and the Mac arm
+ * called a `brew_update` that does not exist anywhere. Asking whether the
+ * command is on PATH answers the same question without a lookup table of OS
+ * names, and a machine with both paru and Homebrew gets both.
+ *
+ * All of these run in the foreground: they want a terminal for their sudo
+ * prompt and their conflict questions.
+ */
+const OS_PACKAGES: { requires: string; steps: string[][] }[] = [
+  // paru wraps pacman and covers the AUR, so pacman is not called separately.
+  { requires: "paru", steps: [["paru", "-Syu"]] },
+  {
+    requires: "apt",
+    steps: [
+      ["sudo", "apt", "update"],
+      ["sudo", "apt", "upgrade", "-y"],
+      ["sudo", "apt", "autoremove", "-y"],
+      ["sudo", "apt-get", "clean"],
+    ],
+  },
+  {
+    requires: "brew",
+    steps: [
+      ["brew", "update"],
+      ["brew", "upgrade"],
+      // Casks are macOS only; on Linuxbrew the flag is not accepted.
+      ...(osName() === "darwin" ? [["brew", "upgrade", "--cask"]] : []),
+      ["brew", "cleanup"],
+    ],
+  },
+];
 
 /**
  * Steps that are one command with no dependants. The shell version wrote each
@@ -131,9 +168,12 @@ async function main(): Promise<void> {
   const dryRun = options.mode === "dry-run";
   const dispatch = createDispatcher(options);
 
-  // OS packages first, in the foreground: paru wants a terminal for its sudo
-  // prompt and its conflict questions, so it cannot be queued.
-  await ifPresent("paru", () => foregroundStep(["paru", "-Syu"], dryRun));
+  // OS packages first. Exactly one of paru and apt is expected to exist, so a
+  // missing one is normal and not worth reporting.
+  for (const { requires, steps } of OS_PACKAGES) {
+    if (!commandExists(requires)) continue;
+    for (const step of steps) await foregroundStep(step, dryRun);
+  }
 
   // fish plugins, also in the foreground: pez writes to the fish config.
   await ifPresent("pez", () => foregroundStep(["pez", "upgrade"], dryRun));
