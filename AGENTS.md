@@ -26,7 +26,7 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
     `run()` / `runChain()` はハンドルを返し、それを `after` に渡して依存を組む
   - `cargo.ts` `cargo install-update --list` の唯一のパーサ
   - `fish.ts` fish 補完の置き場
-- `src/{generate,install,update}/` — 実行可能スクリプト。`#!/usr/bin/env bun`
+- `src/{generate,install,update,misc}/` — 実行可能スクリプト。`#!/usr/bin/env bun`
   - **各 updater は `enqueue(dispatch)` を export し、CLI 起動は
     `if (import.meta.main)` の下に置く。** `src/update/all.ts` が全部を
     **1つの dispatcher で**取り込むため。ここを別プロセス起動にすると、
@@ -92,7 +92,7 @@ PR は「移管先 → シム → 死んだコピーの削除」の順にマー�
 シムは移管先のファイルが master にあることを前提にするため。
 
 移管済み: `vup` 本体、パッケージリストの生成（9種）と導入（8種）、cargo の update、fish 補完、
-docker compose プラグインの update、mise の `ref:` ピン。
+docker compose プラグインの update、mise の `ref:` ピン、`editorconfig`。
 
 **移すのではなく消えたもの:** chromedriver / geckodriver / twitch-cli（mise と aqua へ）、
 `update_pnpm`（`pnpm self-update` に置換）、`update_mise` の4サブコマンド中3つ
@@ -107,7 +107,12 @@ docker compose プラグインの update、mise の `ref:` ピン。
 未移管の処理は、今もここ以外に実装がある。移管するときは**こちらを正として読む**こと。
 
 - chezmoi の `private_dot_local/bin/executable_*` — 移管済み以外の18本
-- chezmoi の PowerShell プロファイル — cargo 以外の関数
+- chezmoi の PowerShell プロファイル — cargo と editorconfig 以外の関数。
+  **`Invoke-MimikunScript` が呼ぶパスは、足したら必ず実在を確認する。**
+  2026-08-03 まで `src/generate/cargo-package-list.ts` と
+  `src/install/cargo-packages.ts` を指したままで、どちらも改名後は存在しなかった。
+  Windows でしか踏まない上に「mimikun.scripts not found」と出るので、
+  repo が無いのかファイルが無いのか読んでも分からない
 - `mimikun/mimikun.sh` の `src/**` と `powershell/**` は**どこからも読み込まれていない死んだコピー**。
   2026-02 以降動いておらず chezmoi 側と乖離している。移管が済み次第あちらから削除し、最終的にアーカイブする
 
