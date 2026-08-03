@@ -22,7 +22,8 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
   - `cmd.ts` `commandExists()` / `envVarSet()`
   - `shell.ts` `sq()` — pueue に渡すコマンド文字列のクォート
   - `pueue.ts` `pueue add` の薄いラッパー。`TaskId` は branded type
-  - `runner.ts` `--no-pueue` / `--dry-run` / `--serial` / `--after` の解釈と実行
+  - `runner.ts` `--no-pueue` / `--dry-run` / `--serial` / `--after` の解釈と実行。
+    `runAfterAll()` は「ここまで積んだ全部の後」を待つ（cargo の一覧再生成用）
   - `cargo.ts` `cargo install-update --list` の唯一のパーサ
   - `fish.ts` fish 補完の置き場
 - `src/{generate,install,update}/` — 実行可能スクリプト。`#!/usr/bin/env bun`
@@ -155,19 +156,33 @@ signal にならない）。
 **重複を見つけたら、片方を消す前に両方の出力を比べる。** どちらが正しいか
 決めずに「新しいほう」「呼ばれているほう」を残すと、壊れた側を残す確率が半分ある。
 
+### 動いていないコピーに機能を足しても、誰も気づかない
+
+`vup.sh` と chezmoi の `executable_vup` は長く並存していたが、
+**実際に叩かれていたのは `vup.sh` のほうだけ**だった（`vup` という名前で PATH に
+出ていたのは chezmoi 側なので、`command -v` では逆に見える）。
+その結果、chezmoi 側にしか無かった3つが**静かに実行されなくなっていた**。
+
+- `paru -Syu` — OS パッケージの更新そのもの
+- `update_fish_completions`
+- `generate_cargo_package_list`
+
+**「移管済み」を数えるときは、移管先が実際に呼ばれているかまで見る。**
+`grep` で呼び出し元が1つしか無いなら、それが死んでいれば機能ごと死ぬ。
+2026-08-03 に3つとも `vup.sh` へ戻し、chezmoi 側はシムにした。
+
 ### 次の一歩
 
 **`vup.sh` が実装の残る最後のシェル。** 呼んでいる葉はもう `re_boot` だけで、
-これは対話的な再起動確認なので移す先がない。残りは `vup.sh` 本体の構造の問題。
+これは対話的な再起動確認なので移す先がない。残りは `vup.sh` 本体の構造。
 
-順序の候補:
+1. `vup.sh` 本体を TS へ。pueue の依存グラフ（bob の6段、aqua の5段、gup の2段）は
+   `runChain()` そのもので、**表 + `runChain()` に畳める**。
+   `--no-pueue` / `--dry-run` は `runner.ts` が既に持っているので、
+   chezmoi 側が抱えていた `use_pueue()` / `no_pueue()` の二重管理は再現しない
+2. `paru -Syu` は前景のまま残す。sudo と競合の質問に端末が要る
 
-1. `vup.sh` 本体。pueue の依存グラフを組む部分（bob の6段、aqua の5段、gup の2段）が
-   `runner.ts` の `runChain()` そのものなので、**表 + `runChain()` に畳める**
-2. chezmoi 側の `executable_vup` は `vup.sh` の旧複製で、`--no_pueue` の分岐を
-   もう1本持っている。**片方だけ直すと上の「2実装」の罠に入る。** 同時に畳む
-
-**着手前に、まず既存パッケージマネージャで済まないかを確認する**（上の2節）。
+**着手前に、まず既存パッケージマネージャで済まないかを確認する**（上の節）。
 
 **2026-08-16 に一度 `vup` を回し、cargo と fish 補完がいつもどおり pueue に積まれるか見る。**
 積まれていなければ、どこかの移管で必須の分岐を1つ落としている。

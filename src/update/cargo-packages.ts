@@ -5,16 +5,30 @@
  * Replaces `vup.sh`'s cargo section, `mimikun.sh/src/update/cargo-packages.sh`,
  * and `powershell/Invoke-UpdateCargoPackage.ps1`.
  *
- * Usage: cargo-packages.ts [--no-pueue | --dry-run] [--serial] [--after <task-id>]...
+ * Usage: cargo-packages.ts [--generate-list] [--no-pueue | --dry-run] [--serial]
+ *                          [--after <task-id>]...
  *
  * `vup.sh` runs `rustup update` first and makes every `cargo install` wait for
- * it, so it passes that task id via `--after`.
+ * it, so it passes that task id via `--after`. It also passes `--generate-list`
+ * so the recorded package list is rewritten once the installs are done.
  */
+import { dirname, join } from "node:path";
 import { listPackages, UNBUILDABLE, unbuildableNote } from "../lib/cargo.ts";
 import { createDispatcher, note, parseArgs } from "../lib/runner.ts";
+import { sq } from "../lib/shell.ts";
+
+/** Rewrite `~/.mimikun-pkglists/<os>_cargo_packages.txt` from what is installed. */
+function generateListCommand(): string {
+  const script = join(dirname(import.meta.dir), "generate", "package-lists.ts");
+  return `bun run ${sq(script)} cargo`;
+}
 
 async function main(): Promise<void> {
-  const dispatch = createDispatcher(parseArgs(process.argv.slice(2)));
+  const argv = process.argv.slice(2);
+  // `--generate-list` is ours, not the dispatcher's, so keep it out of parseArgs.
+  const generateList = argv.includes("--generate-list");
+  const dispatch = createDispatcher(parseArgs(argv.filter((a) => a !== "--generate-list")));
+
   const outdated = (await listPackages()).filter((pkg) => pkg.needsUpdate);
 
   console.error("Update these packages:");
@@ -28,6 +42,10 @@ async function main(): Promise<void> {
       continue;
     }
     await dispatch.run(`cargo install ${pkg.name}`);
+  }
+
+  if (generateList) {
+    await dispatch.runAfterAll(generateListCommand());
   }
 }
 

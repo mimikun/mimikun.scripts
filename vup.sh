@@ -10,6 +10,13 @@ if ! test "$(
   exit 1
 fi
 
+# OS packages first, in the foreground: paru wants a terminal for its sudo
+# prompt and its conflict questions, so it cannot be queued.
+if command -v paru >/dev/null 2>&1; then
+  echo "paru -Syu"
+  paru -Syu
+fi
+
 echo "rustup update"
 rust_task_id=$(pueue add -p -- "rustup update")
 
@@ -62,7 +69,10 @@ echo "clean stale /tmp/cargo-install leftovers"
 find /tmp -maxdepth 1 -name 'cargo-install*' -type d -mmin +30 -exec rm -rf {} + 2>/dev/null
 
 echo "update_cargo_packages"
-bun run "$SCRIPT_DIR/src/update/cargo-packages.ts" --after "$rust_task_id"
+bun run "$SCRIPT_DIR/src/update/cargo-packages.ts" --after "$rust_task_id" --generate-list
+
+echo "update fish completions"
+bun run "$SCRIPT_DIR/src/update/fish-completions.ts"
 
 echo "gup update"
 task_id=$(pueue add -p -- "gup update")
