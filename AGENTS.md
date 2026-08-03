@@ -93,27 +93,50 @@ PR は「移管先 → シム → 死んだコピーの削除」の順にマー�
 
 未移管の処理は、今もここ以外に実装がある。移管するときは**こちらを正として読む**こと。
 
-- chezmoi の `private_dot_local/bin/executable_*` — 移管済み以外の25本
+- chezmoi の `private_dot_local/bin/executable_*` — 移管済み以外の21本
 - chezmoi の PowerShell プロファイル — cargo 以外の関数
 - `mimikun/mimikun.sh` の `src/**` と `powershell/**` は**どこからも読み込まれていない死んだコピー**。
   2026-02 以降動いておらず chezmoi 側と乖離している。移管が済み次第あちらから削除し、最終的にアーカイブする
 
+### 移管先は TypeScript とは限らない
+
+**葉に着手する前に、まず既存のパッケージマネージャで済まないかを確認する。**
+2026-08-03 に `update_chromedriver` / `update_geckodriver` / `update_twitch_cli` を
+片付けたとき、3本とも TypeScript を1行も書かずに済んだ。
+
+- chromedriver → mise の `http:` backend（Chrome for Testing の
+  `LATEST_RELEASE_STABLE` を `version_list_url` に食わせる）
+- geckodriver → mise の `github:` backend。`ubi:` は 2027.1.0 で削除予定なので使わない。
+  `github:` は artifact attestation と SLSA provenance も検証する
+- twitch-cli → aqua 標準レジストリ。ネストしたバイナリパスと SHA256 検証を
+  レジストリ側が持っている
+
+**判断: パッケージマネージャで表現できるものは、ここへ移さない。**
+移管の問いは「shell から TS へ」ではなく「shell からどこへ」。
+自前の更新スクリプトは**壊れても失敗しない**ので気づけない —
+`update_chromedriver` は廃止されたエンドポイントが 404 ではなく古い値を返し続けたため、
+3年間 Chrome 114 を正解と信じて動き、毎回「Update found!」と表示していた。
+実際の Chrome は 151 で、chromedriver は起動できない状態だった。
+**この repo に置くのは、パッケージマネージャに載らないものだけにする。**
+
 ### 次の一歩
 
 **`vup.sh` が実装の残る最後のシェル。ただし直接は畳めない。**
-`update_mise` / `update_docker_compose` / `update_chromedriver` などを呼ぶ
+`update_mise` / `update_docker_compose` / `update_pnpm` などを呼ぶ
 オーケストレータなので、**葉のほうを先に移さないと呼び出し先が消えない。**
 
 順序の候補:
 
-1. `update_chromedriver` / `update_geckodriver` / `update_twitch_cli` — 3本とも
-   「リリースからバージョン取得 → ダウンロード → 展開 → 配置」で同じ形。
-   `runner.ts` の `runChain()` と `fish-completions.ts` の sharkdp 処理がそのまま効く
-2. 残りの `update_*` の葉
-3. 最後に `vup.sh` 本体
+1. 残りの `update_*` の葉。**1本ずつ、上の「移管先は TypeScript とは限らない」を先に通す**
+2. 最後に `vup.sh` 本体
 
 **2026-08-16 に一度 `vup` を回し、cargo と fish 補完がいつもどおり pueue に積まれるか見る。**
 積まれていなければ、どこかの移管で必須の分岐を1つ落としている。
+
+**同じ日に `chromedriver --version` と `google-chrome-stable --version` の
+メジャーが一致しているかも見る。** ずれていれば Stable 追従では足りないという意味なので、
+`src/update/chromedriver.ts` を書く（`google-chrome-stable --version` から
+メジャーを取り、`LATEST_RELEASE_<major>` を引く形）。
 
 ## Agent skills
 
