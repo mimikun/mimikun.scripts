@@ -22,22 +22,14 @@ pueue add -- "bun upgrade"
 # TODO: it
 echo "mise upgrade (has human rights)"
 mise_task_id=$(pueue add -p -- "mise upgrade")
-pvim_task_id=$(pueue add -p --after "$mise_task_id" -- "update_mise paleovim-master --use-pueue")
-pueue add --after "$pvim_task_id" -- "update_mise paleovim-latest --use-pueue"
 
-zig_version_file="$HOME/.cache/zig-master-version.txt"
-zig_version=$(cat "$zig_version_file")
-new_zig_version=$(curl -sSL https://ziglang.org/download/index.json | jq .master.version --raw-output)
-
-if [ "$zig_version" != "$new_zig_version" ]; then
-  echo "zig (latest)master found!"
-  echo "$new_zig_version" >"$zig_version_file"
-  task_id=$(pueue add -p --after "$mise_task_id" -- "mise uninstall zig@master")
-  pueue add --after "$task_id" -- "mise install zig@master"
-else
-  echo "zig (latest)master is already installed"
-  echo "version: $zig_version"
-fi
+# `mise upgrade` already covers vim@latest and zig@master -- run
+# `mise upgrade --dry-run` to see it say so. The one pin it cannot refresh is
+# vim@ref:master: the version string stays "ref:master" however far upstream
+# moves, so the tool never turns up in `mise outdated`. That is all this does,
+# and the zig block that used to live here was doing mise's job twice.
+echo "update mise ref-pinned tools"
+bun run "$SCRIPT_DIR/src/update/mise-refs.ts" --after "$mise_task_id"
 
 echo "tldr --update"
 pueue add -- "tldr --update"
