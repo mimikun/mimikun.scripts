@@ -13,11 +13,7 @@
 import { commandExists, envVarSet } from "../lib/cmd.ts";
 import { completionFile, completionsDir } from "../lib/fish.ts";
 import { createDispatcher, parseArgs } from "../lib/runner.ts";
-
-/** Single-quote a path for the shell that pueue runs the command through. */
-function sq(value: string): string {
-  return `'${value.replaceAll("'", `'\\''`)}'`;
-}
+import { sq } from "../lib/shell.ts";
 
 type Recipe =
   /** Run `argv` and redirect stdout into the completion file. */
