@@ -94,12 +94,6 @@ const LISTS: InstallSpec[] = [
     },
   },
   {
-    name: "pipx",
-    listFile: "pipx_packages.txt",
-    requires: "pipx",
-    install: (pkg) => `pipx install ${pkg}`,
-  },
-  {
     name: "pnpm",
     listFile: "pnpm_packages.txt",
     requires: "pnpm",
