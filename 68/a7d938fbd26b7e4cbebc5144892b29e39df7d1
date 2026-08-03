@@ -1,0 +1,27 @@
+vup.sh
+  s_3037b6df4d5a60::t_06290ee576af07 26-32
+  s_3037b6df4d5a60::t_2724fa8b388e8c 25
+AGENTS.md
+  s_3037b6df4d5a60::t_750db9cfb450e7 142-157,160-161,165-170
+  s_3037b6df4d5a60::t_066252bde4b34e 89,92-93
+  s_3037b6df4d5a60::t_f9ce40196567ad 103
+src/update/mise-refs.ts
+  s_3037b6df4d5a60::t_cdd120d572437a 1-89,91-133
+  s_3037b6df4d5a60::t_052380ad4a2a22 90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "68a7d938fbd26b7e4cbebc5144892b29e39df7d1",
+  "prompts": {},
+  "sessions": {
+    "s_3037b6df4d5a60": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "70bd2622-1c53-4bee-8703-ebc89a8467f6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
