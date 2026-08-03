@@ -200,15 +200,10 @@ signal にならない）。
 **shell の実装はもう無い。** `vup.sh` は `sudo -v` を取って `src/update/all.ts` に
 渡すだけになった。
 
-残っているのは、まだ手つかずの葉。
+`mimikun/mimikun.sh` はアーカイブ済み。chezmoi の PowerShell プロファイルは本人が
+改修中なので触らない。**残る葉は下の「chezmoi に残る16本」だけ。**
 
-1. **`mimikun/mimikun.sh` のアーカイブ。** コードの削除は 2026-08-03 に済んでいる
-   （`mimikun.sh#127`）。**アーカイブは外向きの操作なので、実行前に必ず本人に確認する。**
-   `gh repo archive` を勝手に叩かないこと。ファイル削除とは別の判断
-2. chezmoi の PowerShell プロファイル — cargo と editorconfig 以外の関数。
-   `all.ts` は Windows でも動くので、`Invoke-*` を減らせる余地がある
-3. chezmoi に残る18本。`update_pip_packages` / `update_poetry` / `update_brew` あたりが次。
-   **着手前に、まず既存パッケージマネージャで済まないかを確認する**（上の節）
+**着手前に、まず既存パッケージマネージャで済まないかを確認する**（上の節）。
 
 **`vup --dry-run` が使えるようになった。** 何か変えたら、変更前後の出力を
 `sed -E 's/^pueue add (--after [^-]*)?-- //' | sort` で正規化して diff する。
@@ -221,6 +216,47 @@ signal にならない）。
 メジャーが一致しているかも見る。** ずれていれば Stable 追従では足りないという意味なので、
 `src/update/chromedriver.ts` を書く（`google-chrome-stable --version` から
 メジャーを取り、`LATEST_RELEASE_<major>` を引く形）。
+
+### chezmoi に残る16本 — うち移管対象は2本
+
+長らく「18本」と書いていたが、実数は16本
+（`private_dot_local/bin/` の `README.md` を除いた実行ファイル）。
+**数え直すときは `grep -L "Thin shim"` で判定する。** シムはヘッダにその一行を持つ。
+
+うち12本は移管対象ではない。**分類を先に済ませてあるので、次のセッションは
+ここを読んで葉を選ぶこと。全部を「残っている shell」として数えないこと。**
+
+- **上流のベンダーコピー（2本）** — `dotfyle`（271行）、`wsl-open`（227行、
+  `gitlab.com/4U6U57/wsl-open`）。自作ではないので書き換える対象にしない
+- **chezmoi 自身のフック（2本）** — `chezmoi_pre_apply_hook`（中身は
+  `echo "THIS IS WIP"` だけ）、`chezmoi_post_apply_hook`（`aqua install --all`）。
+  chezmoi が名前で探して呼ぶので、chezmoi 側にあることが動作条件
+- **対話が本体の小物（8本）** — `cpat` `lk` `numeronym` `pcd` `read_confirm`
+  `re_boot` `shut_down` `remove_neovim_data`。TTY を掴んで人に聞くのが仕事なので、
+  pueue にも `--dry-run` にも乗らない。`all.ts` の `rebootCheck()` が `re_boot` を
+  呼んでおり、この向き（TS → shell）で正しい
+
+残る移管対象は pip の2本だけ。
+
+- `update_pip_packages` と `pueue_update_pip_packages` — **同じ処理の2実装。**
+  前者は `--after` で鎖にし、後者は全部並列に積む。どちらも変数名が
+  `pip_outdated_pkgs` だが中身は `pip freeze` なので、outdated ではなく全件。
+  **移す前に、そもそも全件 upgrade を続けるかを決める**（mise 管理の python 3.12 に
+  10KB 分入っており、全件 upgrade は依存を壊しうる）。2026-08-03 時点で保留
+
+**穴が1つある: `pipx` と `uv tool` の更新がどこにも無い。**
+generate と install は pip / pipx / uv とも移管済みなのに、update だけ
+chezmoi にも `all.ts` にも無い。pip の判断を付けるときに一緒に埋める。
+
+**`lk` は壊れている。** `cd "$(walk "$@")"` をスクリプトとして実行しているので、
+cd が効くのは子プロセスだけ。`~/.config/fish/functions/` に同名の関数も無い。
+直すなら移管ではなく fish 関数化。
+
+**2026-08-03 に `update_brew` と `update_poetry` を削除した**（`dotfiles#3602`）。
+前者は `all.ts` の `OS_PACKAGES` と完全に重複していて、しかも
+`chezmoi add` 一覧に入っていなかった。後者は curl 版 poetry
+（`~/.local/share/pypoetry`）を更新していたが、PATH に出ているのは mise の
+python 3.12 側で、**使われていないコピーを更新していた。**
 
 ## Agent skills
 
