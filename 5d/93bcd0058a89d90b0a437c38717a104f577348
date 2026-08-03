@@ -1,0 +1,35 @@
+src/lib/shell.ts
+  s_3037b6df4d5a60::t_6c18050cfc1c57 1-13
+vup.sh
+  s_3037b6df4d5a60::t_6cc54af7dd8e1e 51-52
+  s_3037b6df4d5a60::t_7728b9fc2a66b8 97-98
+src/lib/platform.ts
+  s_3037b6df4d5a60::t_894662427c7628 25-41
+src/update/fish-completions.ts
+  s_3037b6df4d5a60::t_ab9a98a47548b6 16
+AGENTS.md
+  s_3037b6df4d5a60::t_5965b182493d9d 102
+  s_3037b6df4d5a60::t_c09d6d6980843a 20-21,23
+  s_3037b6df4d5a60::t_450e176eda709f 88-92
+  s_3037b6df4d5a60::t_700c140fba86a1 128-140,144-145,149-157
+src/update/docker-compose.ts
+  s_3037b6df4d5a60::t_055cefe897c0cd 24
+  s_3037b6df4d5a60::t_a0db3c6ec653a9 100,102-105
+  s_3037b6df4d5a60::t_fd755cfe66263d 1-23,25-99,101,106-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "5d93bcd0058a89d90b0a437c38717a104f577348",
+  "prompts": {},
+  "sessions": {
+    "s_3037b6df4d5a60": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "70bd2622-1c53-4bee-8703-ebc89a8467f6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
