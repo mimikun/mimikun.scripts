@@ -86,10 +86,11 @@ PR は「移管先 → シム → 死んだコピーの削除」の順にマー�
 シムは移管先のファイルが master にあることを前提にするため。
 
 移管済み: パッケージリストの生成（9種）と導入（8種）、cargo の update、fish 補完、
-docker compose プラグインの update。
+docker compose プラグインの update、mise の `ref:` ピン。
 
 **移すのではなく消えたもの:** chromedriver / geckodriver / twitch-cli（mise と aqua へ）、
-`update_pnpm`（`pnpm self-update` に置換）。
+`update_pnpm`（`pnpm self-update` に置換）、`update_mise` の4サブコマンド中3つ
+（`mise upgrade` が既にやっていた）。
 
 **補完やパッケージのような「対象が増え続けるもの」は表にする。**
 `src/update/fish-completions.ts` がその形。ツールを足す作業が
@@ -99,7 +100,7 @@ docker compose プラグインの update。
 
 未移管の処理は、今もここ以外に実装がある。移管するときは**こちらを正として読む**こと。
 
-- chezmoi の `private_dot_local/bin/executable_*` — 移管済み以外の19本
+- chezmoi の `private_dot_local/bin/executable_*` — 移管済み以外の18本
 - chezmoi の PowerShell プロファイル — cargo 以外の関数
 - `mimikun/mimikun.sh` の `src/**` と `powershell/**` は**どこからも読み込まれていない死んだコピー**。
   2026-02 以降動いておらず chezmoi 側と乖離している。移管が済み次第あちらから削除し、最終的にアーカイブする
@@ -138,23 +139,35 @@ Docker Desktop の更新と綱引きになる）だが、Docker Engine のマシ
 プラグインのシンボリックリンクは過去の自分の実行が実体ファイルに変えてしまっていて
 signal にならない）。
 
+### 同じ処理の2実装は、必ず片方が壊れている
+
+`update_mise` の移管で3件出た。**どれもエラーを出さない壊れ方。**
+
+- `zig-master` は `mise uninstall zig@ref:master` を積んでいたが、設定は
+  `zig = ["master", ...]`。`ref:master` は存在しないので空振りする。
+  同じ処理が `vup.sh` にインラインでもあり、**そちらは `zig@master` で正しかった**
+- `paleovim-latest` は `mise current vim`（vim が2つ設定されているので
+  `"ref:master 9.2.0894"` と**2つ**出る）を `mise latest vim`（`"9.2.0901"`）と
+  比較していた。永久に一致しないので、**毎回 vim をソースから再ビルドしていた**
+- `zig-latest` はどこからも呼ばれず、`$MISE_DATA_DIR` 未設定のまま
+  `$MISE_DATA_DIR/installs/zig/...` を読んでいた
+
+**重複を見つけたら、片方を消す前に両方の出力を比べる。** どちらが正しいか
+決めずに「新しいほう」「呼ばれているほう」を残すと、壊れた側を残す確率が半分ある。
+
 ### 次の一歩
 
-**`vup.sh` が実装の残る最後のシェル。ただし直接は畳めない。**
-`update_mise` などを呼ぶオーケストレータなので、
-**葉のほうを先に移さないと呼び出し先が消えない。**
+**`vup.sh` が実装の残る最後のシェル。** 呼んでいる葉はもう `re_boot` だけで、
+これは対話的な再起動確認なので移す先がない。残りは `vup.sh` 本体の構造の問題。
 
 順序の候補:
 
-1. `update_mise`（174行）。`paleovim-master` / `zig-master` が上流の git SHA や
-   `ziglang.org/download/index.json` を見て、`~/.cache/*.txt` と突き合わせてから
-   `mise uninstall` → `mise install` を積む。mise は `ref:master` の上流更新を
-   検知しないのでパッケージマネージャでは表現できない。**表にできる形**
-   （ツール名・バージョン取得元・キャッシュファイルの3列）。
-   **`vup.sh` の 28-40 行が `update_mise zig-master` と同じキャッシュファイルを見る
-   重複になっている。** 移管のときに1本化する
-2. 残りの `update_*` の葉。**1本ずつ、上の2節を先に通す**
-3. 最後に `vup.sh` 本体
+1. `vup.sh` 本体。pueue の依存グラフを組む部分（bob の6段、aqua の5段、gup の2段）が
+   `runner.ts` の `runChain()` そのものなので、**表 + `runChain()` に畳める**
+2. chezmoi 側の `executable_vup` は `vup.sh` の旧複製で、`--no_pueue` の分岐を
+   もう1本持っている。**片方だけ直すと上の「2実装」の罠に入る。** 同時に畳む
+
+**着手前に、まず既存パッケージマネージャで済まないかを確認する**（上の2節）。
 
 **2026-08-16 に一度 `vup` を回し、cargo と fish 補完がいつもどおり pueue に積まれるか見る。**
 積まれていなければ、どこかの移管で必須の分岐を1つ落としている。
