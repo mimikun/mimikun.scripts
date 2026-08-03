@@ -12,6 +12,7 @@
 import { parseInstallUpdateList } from "../lib/cargo.ts";
 import { commandExists } from "../lib/cmd.ts";
 import { pkgListPath, sharedPkgListPath } from "../lib/platform.ts";
+import { formatToolLine, parseToolList } from "../lib/uv.ts";
 
 type ListSpec = {
   /** Selector on the command line. */
@@ -86,17 +87,12 @@ const LISTS: ListSpec[] = [
   },
   {
     name: "uv",
-    // `name vX.Y.Z`, then an indented `- executable` line per binary. Anchor on
-    // the version so a tool whose executable starts with a v is not mistaken
-    // for a package, which `grep "v[0-9]"` would have done.
+    // `--show-python` adds the interpreter, which the list has to carry: see
+    // `src/lib/uv.ts` for why a bare name is not enough to reinstall with.
     file: "uv_tools.txt",
     requires: "uv",
-    argv: ["uv", "tool", "list"],
-    parse: (stdout) =>
-      lines(stdout)
-        .map((line) => /^(\S+)\s+v\d/.exec(line))
-        .filter((match) => match !== null)
-        .map((match) => match[1] as string),
+    argv: ["uv", "tool", "list", "--show-python"],
+    parse: (stdout) => parseToolList(stdout).map(formatToolLine),
   },
   {
     name: "rubygem",

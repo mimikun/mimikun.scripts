@@ -17,6 +17,7 @@ import { UNBUILDABLE, unbuildableNote } from "../lib/cargo.ts";
 import { commandExists } from "../lib/cmd.ts";
 import { pkgListPath, sharedPkgListPath } from "../lib/platform.ts";
 import { createDispatcher, note, parseArgs, type RunOptions } from "../lib/runner.ts";
+import { installCommand, parseToolLine } from "../lib/uv.ts";
 
 type InstallSpec = {
   /** Selector on the command line. */
@@ -105,10 +106,13 @@ const LISTS: InstallSpec[] = [
     install: (pkg) => `pnpm install --global ${pkg}`,
   },
   {
+    // A line here is `name` or `name 3.13`, so the interpreter a tool was built
+    // against survives a reinstall instead of everything landing on uv's
+    // default. `src/lib/uv.ts` owns that format.
     name: "uv",
     listFile: "uv_tools.txt",
     requires: "uv",
-    install: (pkg) => `uv tool install ${pkg}`,
+    install: (line) => installCommand(parseToolLine(line)),
   },
 ];
 

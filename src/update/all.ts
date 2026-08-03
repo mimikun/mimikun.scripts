@@ -69,6 +69,11 @@ const SIMPLE: { requires: string; command: string }[] = [
   { requires: "pnpm", command: "pnpm self-update" },
   { requires: "sunbeam", command: "sunbeam extension upgrade --all" },
   { requires: "cargo-cache", command: "cargo cache -a" },
+  // Without `--python` this rebuilds each tool against the interpreter it
+  // already has, so the version spread across the installed tools is uv's
+  // problem rather than something this repo has to model. That is also why
+  // there is no `src/update/uv-tools.ts`: there is nothing to decide per tool.
+  { requires: "uv", command: "uv tool upgrade --all" },
 ];
 
 /**
