@@ -1,0 +1,43 @@
+src/update/cargo-packages.ts
+  s_3037b6df4d5a60::t_7127eef1bc373d 26-31,33-34,54,59-67
+  s_3037b6df4d5a60::t_861781b417b60d 17
+  s_3037b6df4d5a60::t_f9c96b08b480cf 42-45,51,55
+src/lib/runner.ts
+  s_3037b6df4d5a60::t_fd7a67a52d9501 114,121
+  s_3037b6df4d5a60::t_5d61275fd72a3b 64-71,74-75,79,81
+  s_3037b6df4d5a60::t_b2cdc79ec33c87 113,115,118-119,126
+src/update/docker-compose.ts
+  s_3037b6df4d5a60::t_7d586183140a90 23,78-79,107-111
+src/update/fish-completions.ts
+  s_3037b6df4d5a60::t_8920f42e36a49a 15,366-367,395-399
+AGENTS.md
+  s_3037b6df4d5a60::t_5afb25cc7abcb0 181-182,184,186-191,193-197
+  s_3037b6df4d5a60::t_05b38f85c38653 94
+  s_3037b6df4d5a60::t_d876e9fa363f0f 30-36
+  s_3037b6df4d5a60::t_d50f5f76903020 26
+vup.sh
+  s_3037b6df4d5a60::t_79cfebf01f2bfa 2-7,12,16
+src/update/all.ts
+  s_3037b6df4d5a60::t_78f52bdd80aa22 70-74
+  s_3037b6df4d5a60::t_b39bc739bd62a8 1-14,16-69,75-79,85,100,106-110,112-113,115-116,118-119,137,141-144,146-151,153-199
+  s_3037b6df4d5a60::t_579c522ac089ff 15
+  s_3037b6df4d5a60::t_010fdc36c3e90e 80-84,86-99,101-105,111,114,117,120-136,138-140,145,152
+src/update/mise-refs.ts
+  s_3037b6df4d5a60::t_861781b417b60d 22-29,78-83,95,101-104,138-147,150-151,154
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "6099e51cf86ef9d060342baa11aad59d78cd9056",
+  "prompts": {},
+  "sessions": {
+    "s_3037b6df4d5a60": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "70bd2622-1c53-4bee-8703-ebc89a8467f6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
