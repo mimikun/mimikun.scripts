@@ -19,7 +19,14 @@
  */
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { createDispatcher, note, parseArgs, type RunOptions } from "../lib/runner.ts";
+import {
+  createDispatcher,
+  type Dispatcher,
+  type Handle,
+  note,
+  parseArgs,
+  type RunOptions,
+} from "../lib/runner.ts";
 import { sq } from "../lib/shell.ts";
 
 type RefTool = {
@@ -68,7 +75,12 @@ async function lastSeen(path: string): Promise<string | null> {
   return text === "" ? null : text;
 }
 
-async function update(tool: RefTool, options: RunOptions): Promise<void> {
+async function update(
+  tool: RefTool,
+  dispatch: Dispatcher,
+  dryRun: boolean,
+  after?: readonly Handle[],
+): Promise<void> {
   const [seen, upstream] = await Promise.all([lastSeen(tool.cache), tool.upstream()]);
 
   if (seen === upstream) {
@@ -80,14 +92,16 @@ async function update(tool: RefTool, options: RunOptions): Promise<void> {
   // A dry run must leave the cache alone, or the next real run would think
   // the ref had not moved and skip the rebuild. The shell version wrote it
   // unconditionally, but it had no dry run to get wrong.
-  if (options.mode !== "dry-run") {
+  if (!dryRun) {
     await Bun.write(tool.cache, `${upstream}\n`);
   }
 
-  const dispatch = createDispatcher(options);
   // mise skips an install that is already there, so the old build has to go
   // first. The two are one unit and chain even when --serial is off.
-  await dispatch.runChain([`mise uninstall ${sq(tool.spec)}`, `mise install ${sq(tool.spec)}`]);
+  await dispatch.runChain(
+    [`mise uninstall ${sq(tool.spec)}`, `mise install ${sq(tool.spec)}`],
+    after,
+  );
 }
 
 /**
@@ -121,13 +135,20 @@ function selectTools(selected: readonly string[]): RefTool[] {
   return TOOLS.filter((tool) => selected.includes(tool.name));
 }
 
-async function main(): Promise<void> {
-  const { selected, flags } = splitArgs(process.argv.slice(2));
-  const options = parseArgs(flags);
-
-  for (const tool of selectTools(selected)) {
-    await update(tool, options);
+/** Queue a rebuild for every `ref:` pinned tool whose commit has moved. */
+export async function enqueue(
+  dispatch: Dispatcher,
+  options: { dryRun: boolean; after?: readonly Handle[]; selected?: readonly string[] },
+): Promise<void> {
+  for (const tool of selectTools(options.selected ?? [])) {
+    await update(tool, dispatch, options.dryRun, options.after);
   }
 }
 
-await main();
+async function main(): Promise<void> {
+  const { selected, flags } = splitArgs(process.argv.slice(2));
+  const options: RunOptions = parseArgs(flags);
+  await enqueue(createDispatcher(options), { dryRun: options.mode === "dry-run", selected });
+}
+
+if (import.meta.main) await main();

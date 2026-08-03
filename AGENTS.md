@@ -23,12 +23,17 @@ nushell も候補だったが見送った（2026-08-02）。行数の多い処�
   - `shell.ts` `sq()` — pueue に渡すコマンド文字列のクォート
   - `pueue.ts` `pueue add` の薄いラッパー。`TaskId` は branded type
   - `runner.ts` `--no-pueue` / `--dry-run` / `--serial` / `--after` の解釈と実行。
-    `runAfterAll()` は「ここまで積んだ全部の後」を待つ（cargo の一覧再生成用）
+    `run()` / `runChain()` はハンドルを返し、それを `after` に渡して依存を組む
   - `cargo.ts` `cargo install-update --list` の唯一のパーサ
   - `fish.ts` fish 補完の置き場
 - `src/{generate,install,update}/` — 実行可能スクリプト。`#!/usr/bin/env bun`
-- ルートの `*.sh` は**オーケストレータとして残す**。移管済みの部分は TS を呼ぶだけにし、
-  未移管の部分だけ bash のまま置いておく。1歩ずつ差し替えて、各段階で戻せる状態を保つ
+  - **各 updater は `enqueue(dispatch)` を export し、CLI 起動は
+    `if (import.meta.main)` の下に置く。** `src/update/all.ts` が全部を
+    **1つの dispatcher で**取り込むため。ここを別プロセス起動にすると、
+    依存を pueue の実 task id で渡すことになり `--dry-run` が成立しなくなる
+- ルートの `*.sh` に実装は無い。`vup.sh` は `sudo -v` を取ってから
+  `src/update/all.ts` に渡すだけ（bun が起動する前にパスワード入力を
+  端末へ届ける必要があるため、ここだけ shell に残っている）
 
 新しいスクリプトには必ず `--dry-run` を持たせる。移管の前後で
 「積まれるコマンド集合が変わっていないこと」を差分で確認するため。
@@ -86,7 +91,7 @@ stderr へ出す**（`note()` がそうしている）。混ぜると差分が�
 PR は「移管先 → シム → 死んだコピーの削除」の順にマージする。
 シムは移管先のファイルが master にあることを前提にするため。
 
-移管済み: パッケージリストの生成（9種）と導入（8種）、cargo の update、fish 補完、
+移管済み: `vup` 本体、パッケージリストの生成（9種）と導入（8種）、cargo の update、fish 補完、
 docker compose プラグインの update、mise の `ref:` ピン。
 
 **移すのではなく消えたもの:** chromedriver / geckodriver / twitch-cli（mise と aqua へ）、
@@ -173,18 +178,23 @@ signal にならない）。
 
 ### 次の一歩
 
-**`vup.sh` が実装の残る最後のシェル。** 呼んでいる葉はもう `re_boot` だけで、
-これは対話的な再起動確認なので移す先がない。残りは `vup.sh` 本体の構造。
+**shell の実装はもう無い。** `vup.sh` は `sudo -v` を取って `src/update/all.ts` に
+渡すだけになった。
 
-1. `vup.sh` 本体を TS へ。pueue の依存グラフ（bob の6段、aqua の5段、gup の2段）は
-   `runChain()` そのもので、**表 + `runChain()` に畳める**。
-   `--no-pueue` / `--dry-run` は `runner.ts` が既に持っているので、
-   chezmoi 側が抱えていた `use_pueue()` / `no_pueue()` の二重管理は再現しない
-2. `paru -Syu` は前景のまま残す。sudo と競合の質問に端末が要る
+残っているのは移管元の掃除と、まだ手つかずの葉。
 
-**着手前に、まず既存パッケージマネージャで済まないかを確認する**（上の節）。
+1. **`mimikun/mimikun.sh` の `src/**` と `powershell/**` を削除してアーカイブする。**
+   移管が済んだので条件を満たした
+2. chezmoi の PowerShell プロファイル — cargo 以外の関数。
+   `all.ts` は Windows でも動くので、`Invoke-*` を減らせる余地がある
+3. chezmoi に残る18本。`update_pip_packages` / `update_poetry` / `update_brew` あたりが次。
+   **着手前に、まず既存パッケージマネージャで済まないかを確認する**（上の節）
 
-**2026-08-16 に一度 `vup` を回し、cargo と fish 補完がいつもどおり pueue に積まれるか見る。**
+**`vup --dry-run` が使えるようになった。** 何か変えたら、変更前後の出力を
+`sed -E 's/^pueue add (--after [^-]*)?-- //' | sort` で正規化して diff する。
+2026-08-03 の移管はこれで140タスク・依存41本の一致を確認した。
+
+**2026-08-16 に一度 `vup --dry-run` を回し、cargo と fish 補完が積まれているか見る。**
 積まれていなければ、どこかの移管で必須の分岐を1つ落としている。
 
 **同じ日に `chromedriver --version` と `google-chrome-stable --version` の

@@ -20,7 +20,7 @@ import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { machineArch, osName } from "../lib/platform.ts";
-import { createDispatcher, note, parseArgs } from "../lib/runner.ts";
+import { createDispatcher, type Dispatcher, note, parseArgs } from "../lib/runner.ts";
 import { sq } from "../lib/shell.ts";
 
 /** Where the docker CLI looks for plugins, in the order it searches. */
@@ -75,9 +75,8 @@ function assetName(): string {
   return `docker-compose-${osName()}-${machineArch()}`;
 }
 
-async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
-
+/** Queue the download, unless Docker Desktop is already managing the plugin. */
+export async function enqueue(dispatch: Dispatcher): Promise<void> {
   if (dockerDesktopInstalled()) {
     note([
       "Docker Desktop is installed, which ships and updates the compose plugin",
@@ -94,7 +93,6 @@ async function main(): Promise<void> {
   note([`docker compose ${installed ?? "(not installed)"} -> ${latest}`]);
 
   const url = `https://github.com/docker/compose/releases/download/${latest}/${assetName()}`;
-  const dispatch = createDispatcher(options);
 
   // One unit: the system copy is made from the file just downloaded, so the
   // steps chain even when --serial is off. The order is the shell version's.
@@ -106,4 +104,8 @@ async function main(): Promise<void> {
   ]);
 }
 
-await main();
+async function main(): Promise<void> {
+  await enqueue(createDispatcher(parseArgs(process.argv.slice(2))));
+}
+
+if (import.meta.main) await main();
