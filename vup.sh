@@ -97,14 +97,9 @@ echo "upgrade pixi"
 echo "update_docker_compose"
 update_docker_compose
 
-echo "update_chromedriver"
-update_chromedriver
-
-echo "update_geckodriver"
-update_geckodriver
-
-echo "update_twitch_cli"
-update_twitch_cli
+# chromedriver, geckodriver and twitch-cli used to be updated here by hand.
+# They are package-manager tools now, so `mise upgrade` and `aqua update`
+# above already cover them.
 
 if command -v deps_update >/dev/null 2>&1; then
   echo "This is Work-PC!!!"
