@@ -192,6 +192,16 @@ signal にならない）。
 **死んだコピーを消す前に「これの生きた対応物はどれか」を1件ずつ言えるようにする。**
 言えないものが残っていれば、それは移管漏れであってゴミではない。
 
+**chezmoi の `dot_config/fish/` は同じ形の死んだツリー**（2026-08-05 に踏んだ）。
+`.chezmoiignore.tmpl` の `.config/fish/**` が条件分岐の外にあるので**全マシンで
+配備されない。** 生きているのは `mimikun/mimikun.fish-config`（`~/.config/fish` に
+チェックアウト、環境変数は `config/env_paths.fish`）。
+
+**fish の設定を触るときは、まず `chezmoi managed | grep fish` を見る。**
+空なら chezmoi 側は関係ない。`dot_config/fish/config.fish.tmpl` は 21.5KB あって
+本物に見えるので、ファイルの存在では判定できない。`chezmoi apply` が
+`not managed` と言って初めて分かった — **`chezmoi add` した時点では何も言われない。**
+
 ### OS の判定はコマンドの有無で行う。OS 名の表を持たない
 
 引退した `vup` は `os_info -t` の出力を3つの文字列と比較していた。知らない OS では
@@ -213,13 +223,20 @@ signal にならない）。
 `sed -E 's/^pueue add (--after [^-]*)?-- //' | sort` で正規化して diff する。
 2026-08-03 の移管はこれで140タスク・依存41本の一致を確認した。
 
-**2026-08-16 に一度 `vup --dry-run` を回し、cargo と fish 補完が積まれているか見る。**
-積まれていなければ、どこかの移管で必須の分岐を1つ落としている。
+**2026-08-05 に点検済み。予定していた 2026-08-16 を前倒しした**（uv とパッケージリストを
+触ったため）。146タスク・依存47本、cargo 25本、fish 補完 85本、`uv tool upgrade --all` 1本。
+**落ちた分岐は無し。**
 
-**同じ日に `chromedriver --version` と `google-chrome-stable --version` の
-メジャーが一致しているかも見る。** ずれていれば Stable 追従では足りないという意味なので、
-`src/update/chromedriver.ts` を書く（`google-chrome-stable --version` から
-メジャーを取り、`LATEST_RELEASE_<major>` を引く形）。
+**OS パッケージの更新は stdout に出ない。** `paru -Syu` と `pez upgrade` は pueue に
+積まず foreground で走らせるので、`--dry-run` では **stderr の `would run:`** に出る。
+stdout だけを見て「積まれていない」と読むと、移管の事故と区別がつかなくなる
+（実際に一度読み違えた）。stdout が pueue のコマンドだけなのは差分を取るための設計で、
+これはその裏返し。
+
+**chromedriver と Chrome は 151.0.7922.71 でパッチまで一致していた。** mise の `http:`
+backend（`LATEST_RELEASE_STABLE`）で足りているので、`src/update/chromedriver.ts` は
+書かなくてよい。**ずれた場合にだけ書く** — `google-chrome-stable --version` から
+メジャーを取り、`LATEST_RELEASE_<major>` を引く形。
 
 ### chezmoi に残る16本 — うち移管対象は2本
 
