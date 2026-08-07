@@ -1,0 +1,19 @@
+README.md
+  s_d4a715aeba61d3::t_be52d75757889d 1-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "5cedd17395caba849175d76087cf0ab1020131cc",
+  "prompts": {},
+  "sessions": {
+    "s_d4a715aeba61d3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdc30-88f3-7fa2-846d-da2c2e5556c9",
+        "model": "unknown"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
