@@ -68,6 +68,7 @@ const SUBCOMMAND_PATTERNS: { args: string[]; cmds: string[] }[] = [
       "berg",
       "bin",
       "chezmoi",
+      "codex",
       "envdiff",
       "flyctl",
       "fnox",
@@ -200,12 +201,6 @@ const INDIVIDUAL: Entry[] = [
     requires: ["atuin"],
     outputs: ["atuin"],
     recipe: { kind: "stdout", argv: ["atuin", "gen-completions", "--shell", "fish"] },
-  },
-  {
-    requires: ["codex"],
-    requiresEnv: ["OPENAI_API_KEY"],
-    outputs: ["codex"],
-    recipe: { kind: "stdout", argv: ["codex", "completion", "fish"] },
   },
   {
     requires: ["pixi"],
