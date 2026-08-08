@@ -12,6 +12,7 @@
  */
 import { commandExists, envVarSet } from "../lib/cmd.ts";
 import { completionFile, completionsDir } from "../lib/fish.ts";
+import { machineArch } from "../lib/platform.ts";
 import { createDispatcher, type Dispatcher, parseArgs } from "../lib/runner.ts";
 import { sq } from "../lib/shell.ts";
 
@@ -134,6 +135,11 @@ const INDIVIDUAL: Entry[] = [
     requires: ["gh"],
     outputs: ["gh"],
     recipe: { kind: "stdout", argv: ["gh", "completion", "-s", "fish"] },
+  },
+  {
+    requires: ["bat"],
+    outputs: ["bat"],
+    recipe: { kind: "stdout", argv: ["bat", "--completion", "fish"] },
   },
   {
     requires: ["fd"],
@@ -283,7 +289,7 @@ const DOWNLOADS: { cmds: string[]; outputs?: string[]; url: string }[] = [
 ];
 
 /** Tools whose completions only exist inside their release tarball. */
-const SHARKDP_CMDS = ["bat", "hyperfine", "pastel"];
+const SHARKDP_CMDS = ["hyperfine", "pastel"];
 
 function buildEntries(): Entry[] {
   const entries: Entry[] = [];
@@ -332,30 +338,28 @@ function applies(entry: Entry): boolean {
   return true;
 }
 
-/** The steps that pull one completion file out of a sharkdp release tarball. */
-async function sharkdpChain(cmd: string): Promise<string[]> {
+/** Pull one completion file out of the installed sharkdp command's release tarball. */
+function sharkdpCommand(cmd: string): string {
   const repo = `sharkdp/${cmd}`;
-  const response = await fetch(`https://api.github.com/repos/${repo}/releases/latest`);
-  if (!response.ok) {
-    throw new Error(`could not read the latest ${repo} release: HTTP ${response.status}`);
+  const result = Bun.spawnSync({ cmd: [cmd, "--version"], stdout: "pipe", stderr: "pipe" });
+  if (result.exitCode !== 0) {
+    throw new Error(`could not read the installed ${cmd} version`);
   }
-  const { tag_name: version } = (await response.json()) as { tag_name?: string };
-  if (typeof version !== "string" || version === "") {
-    throw new Error(`the latest ${repo} release has no tag name`);
+  const versionOutput = new TextDecoder().decode(result.stdout);
+  const match = versionOutput.match(/\bv?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\b/);
+  if (match === null) {
+    throw new Error(`the installed ${cmd} version has no release version: ${versionOutput.trim()}`);
   }
+  const version = `v${match[1]}`;
 
-  const archiveName = `${cmd}-${version}-x86_64-unknown-linux-gnu`;
+  const archiveName = `${cmd}-${version}-${machineArch()}-unknown-linux-gnu`;
   const archiveFile = `${archiveName}.tar.gz`;
   const url = `https://github.com/${repo}/releases/download/${version}/${archiveFile}`;
+  const tempFile = `/tmp/${cmd}-completion.fish`;
+  const archivePath = `${archiveName}/autocomplete/${cmd}.fish`;
 
-  // The original ran `pushd /tmp` so that pueue recorded /tmp as the working
-  // directory; `cd` per task makes each step stand on its own instead.
-  return [
-    `cd /tmp && wget ${url}`,
-    `cd /tmp && tar xvf ${archiveFile}`,
-    `cd /tmp && cp ${archiveName}/autocomplete/${cmd}.fish ${sq(completionFile(cmd))}`,
-    `cd /tmp && rm -rf ${archiveFile}*`,
-  ];
+  // Write to a temp file so a failed download cannot leave an empty completion.
+  return `curl -fsSL ${sq(url)} | tar -xzO ${sq(archivePath)} > ${sq(tempFile)} && mv ${sq(tempFile)} ${sq(completionFile(cmd))}`;
 }
 
 /** Queue a refresh for every completion this machine can generate. */
@@ -381,7 +385,7 @@ export async function enqueue(dispatch: Dispatcher): Promise<void> {
         }
         break;
       case "sharkdp":
-        await dispatch.runChain(await sharkdpChain(entry.outputs[0] as string));
+        await dispatch.run(sharkdpCommand(entry.outputs[0] as string));
         break;
     }
   }
