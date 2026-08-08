@@ -1,0 +1,20 @@
+docs/plan/fish-completions-sharkdp-tarball.md
+  s_7c5450e9951663::t_af94d978b18d51 109,111-113,115-121
+  s_7c5450e9951663::t_7fbf38595b355f 1-108,110,114,122-140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "28ff37d69a89753df87098ecbac48b0d58da27bd",
+  "prompts": {},
+  "sessions": {
+    "s_7c5450e9951663": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "83a6df3a-4319-45af-986e-059afbe34555",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
