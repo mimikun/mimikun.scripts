@@ -1,0 +1,19 @@
+src/update/fish-completions.ts
+  s_d93198463613b5::t_1115fae7a58f58 15,139-143,292,341-342,344-346,348-351,353,355,358-359,361-362,388
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "804dca051480f8b7349174c2f6e1753ac0ff162a",
+  "prompts": {},
+  "sessions": {
+    "s_d93198463613b5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fdf0e-4766-7c81-b973-16aa6b288e19",
+        "model": "unknown"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
