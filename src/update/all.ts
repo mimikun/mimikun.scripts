@@ -18,6 +18,7 @@ import { enqueue as enqueueCargo } from "./cargo-packages.ts";
 import { enqueue as enqueueCompose } from "./docker-compose.ts";
 import { enqueue as enqueueFishCompletions } from "./fish-completions.ts";
 import { enqueue as enqueueMiseRefs } from "./mise-refs.ts";
+import { enqueue as enqueueUvTools } from "./uv-tools.ts";
 
 /**
  * The OS package managers, keyed by the command that says which OS this is.
@@ -69,11 +70,6 @@ const SIMPLE: { requires: string; command: string }[] = [
   { requires: "pnpm", command: "pnpm self-update" },
   { requires: "sunbeam", command: "sunbeam extension upgrade --all" },
   { requires: "cargo-cache", command: "cargo cache -a" },
-  // Without `--python` this rebuilds each tool against the interpreter it
-  // already has, so the version spread across the installed tools is uv's
-  // problem rather than something this repo has to model. That is also why
-  // there is no `src/update/uv-tools.ts`: there is nothing to decide per tool.
-  { requires: "uv", command: "uv tool upgrade --all" },
 ];
 
 /**
@@ -166,6 +162,9 @@ async function enqueueAll(dispatch: Dispatcher, dryRun: boolean): Promise<void> 
     }),
   );
   await ifPresent("fish", () => enqueueFishCompletions(dispatch));
+  // One task per tool rather than `uv tool upgrade --all`, which stops at the
+  // first tool that fails and takes the rest of the list down with it.
+  await ifPresent("uv", () => enqueueUvTools(dispatch));
 }
 
 async function main(): Promise<void> {

@@ -70,3 +70,20 @@ export function installCommand(tool: UvTool): string {
     ? `uv tool install ${tool.name}`
     : `uv tool install --python ${tool.python} ${tool.name}`;
 }
+
+/**
+ * Every installed tool, as `uv tool list` reports it.
+ *
+ * `src/lib/cargo.ts`'s `listPackages()` plays the same role. `--show-python` is
+ * left off: the caller here is the updater, which must not pin an interpreter,
+ * and `parseToolList` treats the bracket as optional anyway.
+ */
+export async function listTools(): Promise<UvTool[]> {
+  const proc = Bun.spawn(["uv", "tool", "list"], { stdout: "pipe", stderr: "inherit" });
+  const stdout = await new Response(proc.stdout).text();
+  const code = await proc.exited;
+  if (code !== 0) {
+    throw new Error(`uv tool list failed (exit ${code})`);
+  }
+  return parseToolList(stdout);
+}
