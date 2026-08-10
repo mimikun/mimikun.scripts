@@ -350,10 +350,16 @@ PATH で引いた。59件一致し、残る `gptme-nc` は upstream が 0.32.1 �
 
 ### uv tool の python は、更新では要らず、入れ直しでだけ要る
 
-**`uv tool upgrade --all` は `--python` を渡さなければ各ツールの既存インタプリタを
+**`uv tool upgrade` は `--python` を渡さなければ各ツールの既存インタプリタを
 維持する。** 版は uv が `~/.local/share/uv/tools/<name>/pyvenv.cfg` に持っているので、
-更新側はバージョンを1つも知らなくてよい。だから `src/update/uv-tools.ts` は無く、
-`all.ts` の `SIMPLE` に1行あるだけ。**ここに表を作らないこと。**
+更新側はバージョンを1つも知らなくてよい。**だから `src/update/uv-tools.ts` に
+ツールや版の表は無い。一覧は `uv tool list` から実行時に取る。ここに表を作らないこと。**
+
+**`--all` はやめた（2026-08-10）。1プロセスで全ツールを回すので、最初に失敗した
+1本でそこから先が走らなくなり、しかもどれが原因かは pueue の1タスクのログを
+読むまで分からない。** 今は1ツール = 1タスクで積む（109本）。pueue の default group は
+parallel=1 なので同時実行数は変わらず、失敗した1本だけが `pueue status` に
+failed として名前付きで残る。`src/update/cargo-packages.ts` と同じ形。
 
 **版が要るのは入れ直しだけ。** `uv tool install <name>` は uv の*既定*インタプリタで
 建て直すので、名前だけのリストから復元すると全部そこへ着地する。
