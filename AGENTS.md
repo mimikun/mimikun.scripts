@@ -406,6 +406,28 @@ cd が効くのは子プロセスだけ。`~/.config/fish/functions/` に同名�
 （`~/.local/share/pypoetry`）を更新していたが、PATH に出ているのは mise の
 python 3.12 側で、**使われていないコピーを更新していた。**
 
+### `--all` を持つ更新は、1件 = 1タスクに割る（2026-08-18）
+
+uv で決めた形（上節）を `gh` / `sunbeam` / `gup` にも当てた。**`--all` は1プロセスで
+全件を回すので、失敗した1件が「残り全部が走らない」と「どれが原因か分からない」を
+同時に起こす。** 1件 = 1タスクなら、`pueue status` に名前付きの failed が1行残り、
+残りは走り切る。
+
+| 旧 | 新 | 件数 |
+|---|---|---|
+| `gh extensions upgrade --all` | `gh extension upgrade <name>` | 18 |
+| `sunbeam extension upgrade --all` | `sunbeam extension upgrade <name>` | 5 |
+| `gup update` + `gup export` のチェーン | `gup update <name>` × N → `gup export` | 296 |
+
+- **速くはならない。** pueue の default group は `parallel=1`。目的は失敗の切り分け
+- **`gup export` は全 296 件を `after` に取る。** チェーン時代は `gup update` 1本を
+  待てば済んだが、割った後に末尾1件だけを待つと、**まだ積まれている更新を追い越して
+  古いバージョンを書き出す**
+- **`gup list` は同じ一覧を stdout と stderr の両方へ出す。** `src/lib/gup.ts` が
+  stderr を `ignore` にしているのはそのため。`inherit` にすると296行が端末へ二重に出る
+- `mise upgrade` は割っていない。ツール間で共有する再ハッシュがあり、**独立性が
+  確認できていない**（2026-08-18 時点で調査中）
+
 ## Agent skills
 
 ### Issue tracker
