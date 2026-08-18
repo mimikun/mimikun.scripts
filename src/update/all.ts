@@ -17,7 +17,10 @@ import { createDispatcher, type Dispatcher, type Handle, note, parseArgs } from 
 import { enqueue as enqueueCargo } from "./cargo-packages.ts";
 import { enqueue as enqueueCompose } from "./docker-compose.ts";
 import { enqueue as enqueueFishCompletions } from "./fish-completions.ts";
+import { enqueue as enqueueGhExtensions } from "./gh-extensions.ts";
+import { enqueue as enqueueGup } from "./gup-binaries.ts";
 import { enqueue as enqueueMiseRefs } from "./mise-refs.ts";
+import { enqueue as enqueueSunbeamExtensions } from "./sunbeam-extensions.ts";
 import { enqueue as enqueueUvTools } from "./uv-tools.ts";
 
 /**
@@ -65,10 +68,8 @@ const SIMPLE: { requires: string; command: string }[] = [
   { requires: "deno", command: "deno upgrade" },
   { requires: "bun", command: "bun upgrade" },
   { requires: "tldr", command: "tldr --update" },
-  { requires: "gh", command: "gh extensions upgrade --all" },
   { requires: "flyctl", command: "flyctl version upgrade" },
   { requires: "pnpm", command: "pnpm self-update" },
-  { requires: "sunbeam", command: "sunbeam extension upgrade --all" },
   { requires: "cargo-cache", command: "cargo cache -a" },
 ];
 
@@ -89,7 +90,6 @@ const CHAINS: { requires: string; commands: string[] }[] = [
       "bob install head",
     ],
   },
-  { requires: "gup", commands: ["gup update", "gup export"] },
   {
     requires: "aqua",
     commands: [
@@ -151,6 +151,13 @@ async function enqueueAll(dispatch: Dispatcher, dryRun: boolean): Promise<void> 
   for (const { requires, command } of SIMPLE) {
     await ifPresent(requires, () => dispatch.run(command).then(() => undefined));
   }
+  // One task per extension or binary rather than the tool's own `--all`, for
+  // the reason `uv-tools.ts` gives: `--all` is one process over the whole list,
+  // so the first failure hides both the rest of the list and its own name.
+  await ifPresent("gh", () => enqueueGhExtensions(dispatch));
+  await ifPresent("sunbeam", () => enqueueSunbeamExtensions(dispatch));
+  await ifPresent("gup", () => enqueueGup(dispatch));
+
   for (const { requires, commands } of CHAINS) {
     await ifPresent(requires, () => dispatch.runChain(commands).then(() => undefined));
   }
