@@ -1,0 +1,33 @@
+src/lib/sunbeam.ts
+  s_a952fab66e9a43::t_3ae87e2455d1c9 1-32
+src/update/gh-extensions.ts
+  s_a952fab66e9a43::t_25fbbaffaf1761 1-42
+src/lib/gup.ts
+  s_a952fab66e9a43::t_598eb61ae05099 1-39
+src/update/gup-binaries.ts
+  s_a952fab66e9a43::t_438905ec64cf93 1-46
+src/lib/gh.ts
+  s_a952fab66e9a43::t_6b6a26d38115da 1-35
+src/update/sunbeam-extensions.ts
+  s_a952fab66e9a43::t_684c92c963cfee 1-36
+AGENTS.md
+  s_a952fab66e9a43::t_82d04ba01f3ecf 409-430
+src/update/all.ts
+  s_a952fab66e9a43::t_82188e9853d241 20-21,23,154-160
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "99a12cc1f7e3c82c81fb4085d665dada6e3db1f9",
+  "prompts": {},
+  "sessions": {
+    "s_a952fab66e9a43": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "441065fe-90b2-4589-a789-d679fbb53bd4",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
