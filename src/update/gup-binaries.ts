@@ -10,9 +10,15 @@
  * pueue task's log. Per binary, it is a named failed row in `pueue status`.
  *
  * `gup export` still runs last and waits for every update, the way the chain
- * made it wait for the single `gup update`. It writes `~/.config/gup/gup.conf`
- * from what is installed, so exporting before the rebuilds would record the old
- * versions.
+ * made it wait for the single `gup update`. It writes
+ * `~/.config/gup/gup.json` from what is installed, so exporting before the
+ * rebuilds would record the old versions.
+ *
+ * The file it writes is `gup.json`, not `gup.conf`. `gup.conf` was the older
+ * format and stopped being written at some point; the copy left behind here
+ * had last been updated on 2026-02-14 and had drifted to 110 entries against
+ * the 292 gup actually manages, which is long enough for a survey to be
+ * planned against the wrong list. It has been deleted.
  *
  * Usage: gup-binaries.ts [--no-pueue | --dry-run] [--serial] [--after <task-id>]...
  */
