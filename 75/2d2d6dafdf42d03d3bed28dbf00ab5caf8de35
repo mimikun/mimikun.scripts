@@ -1,0 +1,19 @@
+src/update/gup-binaries.ts
+  s_4bc932a2c1edb2::t_d03038b4775ef5 13-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "752d2d6dafdf42d03d3bed28dbf00ab5caf8de35",
+  "prompts": {},
+  "sessions": {
+    "s_4bc932a2c1edb2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2beeb268-dd5f-47c2-b9e8-2d97e0279b16",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
