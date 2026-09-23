@@ -1,0 +1,23 @@
+src/lib/pueue.test.ts
+  s_0d46942dd24703::t_35e73cafa1418c 1-35
+src/lib/pueue.ts
+  s_0d46942dd24703::t_d3973e9667b589 16-17,22-24,39,42-44,88-126
+src/lib/runner.ts
+  s_0d46942dd24703::t_34d7708fa356f5 82-89,94-95,99-103,107,115,125-130,132-161
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4672482756652440f65befe0d6b3e06fe7ebf9a6",
+  "prompts": {},
+  "sessions": {
+    "s_0d46942dd24703": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ee946a78-88a6-4c6d-a7aa-be13b0b6c070",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
