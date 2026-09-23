@@ -13,10 +13,15 @@ export type TaskId = number & { readonly [taskIdBrand]: true };
 export type AddOptions = {
   /** Run only after all of these tasks have finished successfully. */
   after?: readonly TaskId[];
+  /** Queue into this group instead of `default`. It must already exist. */
+  group?: string;
 };
 
 function addArgs(command: string, options: AddOptions): string[] {
   const args = ["add"];
+  if (options.group !== undefined) {
+    args.push("--group", options.group);
+  }
   const after = options.after ?? [];
   if (after.length > 0) {
     args.push("--after", ...after.map(String));
@@ -31,9 +36,12 @@ function addArgs(command: string, options: AddOptions): string[] {
  */
 export function formatAdd(
   command: string,
-  options: { after?: readonly (TaskId | string)[] } = {},
+  options: { after?: readonly (TaskId | string)[]; group?: string } = {},
 ): string {
   const args = ["add"];
+  if (options.group !== undefined) {
+    args.push("--group", options.group);
+  }
   const after = options.after ?? [];
   if (after.length > 0) {
     args.push("--after", ...after.map(String));
@@ -76,4 +84,43 @@ export async function addWithId(command: string, options: AddOptions = {}): Prom
     throw new Error(`pueue add did not return a task id: ${JSON.stringify(stdout)}`);
   }
   return id as TaskId;
+}
+
+/**
+ * The commands that make `name` exist with exactly `parallel` slots.
+ *
+ * `pueue group add` fails when the group is already there, so the group list
+ * is read first rather than the error being swallowed: a swallowed error would
+ * also hide a daemon that is not running. An existing group still gets
+ * `pueue parallel`, so a value changed by hand does not survive the next run.
+ */
+export function groupSetupArgs(
+  existing: readonly string[],
+  name: string,
+  parallel: number,
+): string[] {
+  if (existing.includes(name)) {
+    return ["parallel", String(parallel), "--group", name];
+  }
+  return ["group", "add", name, "--parallel", String(parallel)];
+}
+
+/** Names of the groups the daemon currently has. */
+export async function listGroups(): Promise<string[]> {
+  const proc = Bun.spawn(["pueue", "group", "--json"], { stdout: "pipe", stderr: "inherit" });
+  const stdout = await new Response(proc.stdout).text();
+  const code = await proc.exited;
+  if (code !== 0) {
+    throw new Error(`pueue group --json failed (exit ${code})`);
+  }
+  return Object.keys(JSON.parse(stdout) as Record<string, unknown>);
+}
+
+/** Create `name` with `parallel` slots, or reset an existing one to that value. */
+export async function ensureGroup(name: string, parallel: number): Promise<void> {
+  const args = groupSetupArgs(await listGroups(), name, parallel);
+  const code = await Bun.spawn(["pueue", ...args], { stdout: "inherit", stderr: "inherit" }).exited;
+  if (code !== 0) {
+    throw new Error(`pueue ${args.join(" ")} failed (exit ${code})`);
+  }
 }
