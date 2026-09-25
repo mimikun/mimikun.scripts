@@ -14,7 +14,7 @@
 import { commandExists } from "../lib/cmd.ts";
 import { osName } from "../lib/platform.ts";
 import { createDispatcher, type Dispatcher, type Handle, note, parseArgs } from "../lib/runner.ts";
-import { enqueue as enqueueCargo } from "./cargo-packages.ts";
+import { GROUP as CARGO_GROUP, enqueue as enqueueCargo } from "./cargo-packages.ts";
 import { enqueue as enqueueCompose } from "./docker-compose.ts";
 import { enqueue as enqueueFishCompletions } from "./fish-completions.ts";
 import { enqueue as enqueueGhExtensions } from "./gh-extensions.ts";
@@ -137,7 +137,9 @@ async function foregroundStep(argv: readonly string[], dryRun: boolean): Promise
 async function enqueueAll(dispatch: Dispatcher, dryRun: boolean): Promise<void> {
   let rustup: Handle | undefined;
   await ifPresent("rustup", async () => {
-    rustup = await dispatch.run("rustup update");
+    // In the cargo group, ahead of the installs that wait for it.
+    const cargo = await dispatch.inGroup(CARGO_GROUP.name, CARGO_GROUP.parallel);
+    rustup = await cargo.run("rustup update");
   });
 
   await ifPresent("mise", async () => {

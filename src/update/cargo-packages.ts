@@ -23,6 +23,13 @@ function generateListCommand(): string {
   return `bun run ${sq(script)} cargo`;
 }
 
+/**
+ * Its own pueue group, shared with `rustup update` in `all.ts`. One slot: each
+ * `cargo install` already uses every core, so two at once would double the
+ * load, and whether that is faster is still to be measured.
+ */
+export const GROUP = { name: "cargo", parallel: 1 } as const;
+
 export type CargoOptions = {
   /** Every install waits for this, which `vup` uses for `rustup update`. */
   after?: readonly Handle[];
@@ -43,16 +50,17 @@ export async function enqueue(dispatch: Dispatcher, options: CargoOptions = {}):
   // `vup` used to write that as `--after "$task_id"` with whichever install the
   // loop left behind, which with parallel installs waited for only one of them.
   const installs: Handle[] = [];
+  const cargo = await dispatch.inGroup(GROUP.name, GROUP.parallel);
   for (const pkg of outdated) {
     if (UNBUILDABLE.has(pkg.name)) {
       note(unbuildableNote(pkg.name));
       continue;
     }
-    installs.push(await dispatch.run(`cargo install ${pkg.name}`, options.after));
+    installs.push(await cargo.run(`cargo install ${pkg.name}`, options.after));
   }
 
   if (options.generateList === true) {
-    await dispatch.run(generateListCommand(), installs.length > 0 ? installs : options.after);
+    await cargo.run(generateListCommand(), installs.length > 0 ? installs : options.after);
   }
 }
 
