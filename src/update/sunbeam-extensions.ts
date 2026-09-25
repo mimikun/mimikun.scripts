@@ -11,6 +11,9 @@
 import { createDispatcher, type Dispatcher, type Handle, note, parseArgs } from "../lib/runner.ts";
 import { listExtensions } from "../lib/sunbeam.ts";
 
+/** Its own pueue group, one slot, so the extensions queue beside the other groups. */
+export const GROUP = { name: "sunbeam", parallel: 1 } as const;
+
 export type SunbeamExtensionsOptions = {
   /** Every upgrade waits for these. */
   after?: readonly Handle[];
@@ -23,9 +26,10 @@ export async function enqueue(
 ): Promise<void> {
   const names = await listExtensions();
   note([`sunbeam: upgrading ${names.length} extensions, one task each`]);
+  const sunbeam = await dispatch.inGroup(GROUP.name, GROUP.parallel);
 
   for (const name of names) {
-    await dispatch.run(`sunbeam extension upgrade ${name}`, options.after);
+    await sunbeam.run(`sunbeam extension upgrade ${name}`, options.after);
   }
 }
 

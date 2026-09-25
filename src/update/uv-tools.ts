@@ -20,6 +20,13 @@
 import { createDispatcher, type Dispatcher, type Handle, note, parseArgs } from "../lib/runner.ts";
 import { listTools } from "../lib/uv.ts";
 
+/**
+ * Its own pueue group, so the tools queue beside the other groups instead of
+ * behind them. One slot until it is measured whether concurrent `uv tool
+ * upgrade`s run into uv's cache lock.
+ */
+export const GROUP = { name: "uv", parallel: 1 } as const;
+
 export type UvToolsOptions = {
   /** Every upgrade waits for these. */
   after?: readonly Handle[];
@@ -29,9 +36,10 @@ export type UvToolsOptions = {
 export async function enqueue(dispatch: Dispatcher, options: UvToolsOptions = {}): Promise<void> {
   const tools = await listTools();
   note([`uv: upgrading ${tools.length} tools, one task each`]);
+  const uv = await dispatch.inGroup(GROUP.name, GROUP.parallel);
 
   for (const tool of tools) {
-    await dispatch.run(`uv tool upgrade ${tool.name}`, options.after);
+    await uv.run(`uv tool upgrade ${tool.name}`, options.after);
   }
 }
 
