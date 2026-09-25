@@ -1,0 +1,19 @@
+src/update/uv-tools.ts
+  s_b31be692cbe9cd::t_b70eef3654f7f0 23-29,39,42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a92b6d5c6882c003008aa91b7c532e8eb10ebf6c",
+  "prompts": {},
+  "sessions": {
+    "s_b31be692cbe9cd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1f67e8e-f4c2-4a48-ab6b-f9719272336d",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
