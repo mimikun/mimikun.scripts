@@ -17,6 +17,9 @@
 import { listExtensions } from "../lib/gh.ts";
 import { createDispatcher, type Dispatcher, type Handle, note, parseArgs } from "../lib/runner.ts";
 
+/** Its own pueue group, one slot, so the extensions queue beside the other groups. */
+export const GROUP = { name: "gh", parallel: 1 } as const;
+
 export type GhExtensionsOptions = {
   /** Every upgrade waits for these. */
   after?: readonly Handle[];
@@ -29,9 +32,10 @@ export async function enqueue(
 ): Promise<void> {
   const names = await listExtensions();
   note([`gh: upgrading ${names.length} extensions, one task each`]);
+  const gh = await dispatch.inGroup(GROUP.name, GROUP.parallel);
 
   for (const name of names) {
-    await dispatch.run(`gh extension upgrade ${name}`, options.after);
+    await gh.run(`gh extension upgrade ${name}`, options.after);
   }
 }
 
