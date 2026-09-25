@@ -1,0 +1,19 @@
+src/update/sunbeam-extensions.ts
+  s_b31be692cbe9cd::t_aae4fe6e0172ba 14-16,29,32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "4956c732339f14009a3c5374e0cf13ad7106e1f1",
+  "prompts": {},
+  "sessions": {
+    "s_b31be692cbe9cd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1f67e8e-f4c2-4a48-ab6b-f9719272336d",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
