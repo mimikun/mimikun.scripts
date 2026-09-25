@@ -116,10 +116,27 @@ export async function listGroups(): Promise<string[]> {
   return Object.keys(JSON.parse(stdout) as Record<string, unknown>);
 }
 
-/** Create `name` with `parallel` slots, or reset an existing one to that value. */
+async function runPueue(args: readonly string[]): Promise<number> {
+  return await Bun.spawn(["pueue", ...args], { stdout: "inherit", stderr: "inherit" }).exited;
+}
+
+/**
+ * Create `name` with `parallel` slots, or reset an existing one to that value.
+ *
+ * Two runs can both see the group missing and both try `group add`; the loser
+ * fails. The list is then read again: if the group exists now, only its slots
+ * are set. If it is still missing, the original failure stands.
+ */
 export async function ensureGroup(name: string, parallel: number): Promise<void> {
-  const args = groupSetupArgs(await listGroups(), name, parallel);
-  const code = await Bun.spawn(["pueue", ...args], { stdout: "inherit", stderr: "inherit" }).exited;
+  let args = groupSetupArgs(await listGroups(), name, parallel);
+  let code = await runPueue(args);
+  if (code !== 0 && args[0] === "group") {
+    const retry = groupSetupArgs(await listGroups(), name, parallel);
+    if (retry[0] !== "group") {
+      args = retry;
+      code = await runPueue(args);
+    }
+  }
   if (code !== 0) {
     throw new Error(`pueue ${args.join(" ")} failed (exit ${code})`);
   }
