@@ -1,0 +1,21 @@
+src/update/all.ts
+  s_b31be692cbe9cd::t_97a6233ea8be45 17,140-142
+src/update/cargo-packages.ts
+  s_b31be692cbe9cd::t_1ac6035b7a1edf 26-32,53,59,63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "22e6d5ac8ac713e5f9137baf70c783fd0ed560d0",
+  "prompts": {},
+  "sessions": {
+    "s_b31be692cbe9cd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c1f67e8e-f4c2-4a48-ab6b-f9719272336d",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yuto Tanaka <git@mimikun.dev>"
+    }
+  }
+}
